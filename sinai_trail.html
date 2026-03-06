@@ -1,0 +1,688 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sinai Trail</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{background:#1a1a17;width:100%;min-height:100%}
+.h{color:#444;font-family:'Courier New',Consolas,monospace;font-size:10px;text-align:center;padding:6px 0}
+@media(orientation:landscape){.h{display:none}}
+svg{width:100%;height:auto;display:none}
+svg.vis{display:block}
+.sky,.grs{display:none;width:100%;height:auto}
+#game{display:none;font-family:'Courier New',Consolas,monospace;color:#ccc;font-size:13px;line-height:1.5;padding:8px}
+#game.vis{display:block}
+.nav{text-align:center;padding:10px 0}
+.btn{background:none;border:1px solid #5ce6e644;color:#5ce6e6aa;
+font-family:'Courier New',Consolas,monospace;font-size:11px;
+padding:6px 16px;cursor:pointer;display:inline-block;margin:3px;
+-webkit-user-select:none;user-select:none;-webkit-tap-highlight-color:transparent}
+.btn:active{background:#5ce6e611;color:#5ce6e6;border-color:#5ce6e6}
+.btn.choice{display:block;text-align:left;width:95%;margin:4px auto;padding:10px 12px;font-size:12px;border-color:#5cb85c44;color:#5cb85ccc}
+.btn.choice:active{background:#5cb85c11;border-color:#5cb85c}
+.btn.special{border-color:#e6c84c44;color:#e6c84ccc}
+.btn.special:active{background:#e6c84c11;border-color:#e6c84c}
+.btn.char{display:block;width:95%;margin:6px auto;padding:12px;text-align:left;font-size:12px}
+.btn.disabled{opacity:0.4;pointer-events:none}
+.y{color:#e6c84c}.g{color:#5cb85c}.r{color:#e05050}.c{color:#5ce6e6}
+.d{color:#888}.w{color:#fff}.m{color:#b05caa}
+.bar{display:inline-block;font-size:11px;white-space:nowrap}
+.bar .f{color:#5cb85c}.bar .l{color:#b5a642}.bar .e{color:#e05050}
+.hdr{border-bottom:1px solid #5ce6e644;padding:6px 0;margin-bottom:8px}
+.card{border:1px solid #5ce6e644;padding:12px 8px;margin:8px 0}
+.card .t{color:#e6c84c;font-weight:bold;margin-bottom:4px}
+.ref{color:#888;font-size:11px}
+.card .txt{margin:8px 0;white-space:pre-line}
+.stat-row{margin:2px 0;font-size:11px}
+.sml{margin-top:4px}
+.result{border:1px solid #5ce6e644;padding:12px 8px;margin:8px 0;text-align:center}
+</style>
+</head>
+<body>
+<div class="h" id="hint">turn sideways for best experience</div>
+<svg id="skyN" class="sky" viewBox="0 0 458 102" xmlns="http://www.w3.org/2000/svg">
+<rect width="100%" height="100%" fill="#1a1a17"/>
+<text x="6" y="21" font-family="'Courier New',Consolas,monospace" font-size="12" xml:space="preserve"><tspan fill="#cccccc">  </tspan><tspan fill="#b5a642">    .     +     .  '         .     '      .    +   .   </tspan><tspan fill="#e6c84c">(</tspan></text>
+<text x="6" y="36" font-family="'Courier New',Consolas,monospace" font-size="12" xml:space="preserve"><tspan fill="#cccccc">  </tspan><tspan fill="#b5a642">         .        '     .         +    .        '      </tspan><tspan fill="#e6c84c">)</tspan></text>
+<text x="6" y="51" font-family="'Courier New',Consolas,monospace" font-size="12" xml:space="preserve"><tspan fill="#cccccc">  </tspan><tspan fill="#b5a642">  +    .     '     .       '     .    +      '    .      '  </tspan></text>
+<text x="6" y="66" font-family="'Courier New',Consolas,monospace" font-size="12" xml:space="preserve"><tspan fill="#cccccc">  </tspan><tspan fill="#b05caa">        /\      /\               /\      /\        </tspan></text>
+<text x="6" y="81" font-family="'Courier New',Consolas,monospace" font-size="12" xml:space="preserve"><tspan fill="#cccccc">  </tspan><tspan fill="#d070cc">   /\  /  \    /  \  /\      /\  /  \    /  \  /\    </tspan></text>
+<text x="6" y="96" font-family="'Courier New',Consolas,monospace" font-size="12" xml:space="preserve"><tspan fill="#cccccc">  </tspan><tspan fill="#d070cc">  /  \/    \  /    \/  \    /  \/    \  /    \/  \   </tspan></text>
+</svg>
+<svg id="skyS" class="sky" viewBox="0 0 451 117" xmlns="http://www.w3.org/2000/svg">
+<rect width="100%" height="100%" fill="#1a1a17"/>
+<text x="6" y="21" font-family="'Courier New',Consolas,monospace" font-size="12" xml:space="preserve"><tspan fill="#cccccc">  </tspan><tspan fill="#b5a642">    .     +     .  '    </tspan><tspan fill="#e6c84c">\   |   /</tspan><tspan fill="#b5a642">     .     '    +   .</tspan></text>
+<text x="6" y="36" font-family="'Courier New',Consolas,monospace" font-size="12" xml:space="preserve"><tspan fill="#cccccc">  </tspan><tspan fill="#b5a642">         .        '       </tspan><tspan fill="#e6c84c">.-'-.</tspan><tspan fill="#b5a642">         .         '    .</tspan></text>
+<text x="6" y="51" font-family="'Courier New',Consolas,monospace" font-size="12" xml:space="preserve"><tspan fill="#cccccc">  </tspan><tspan fill="#b5a642">  +    .     '     .   </tspan><tspan fill="#e6c84c">-~'   '~-</tspan><tspan fill="#b5a642">    '     .    +      '</tspan></text>
+<text x="6" y="66" font-family="'Courier New',Consolas,monospace" font-size="12" xml:space="preserve"><tspan fill="#cccccc">  </tspan><tspan fill="#b5a642">     '     .    +        </tspan><tspan fill="#e6c84c">`-.-'</tspan><tspan fill="#b5a642">      +      .     '     .</tspan></text>
+<text x="6" y="81" font-family="'Courier New',Consolas,monospace" font-size="12" xml:space="preserve"><tspan fill="#cccccc">  </tspan><tspan fill="#b05caa">        /\      /\    </tspan><tspan fill="#e6c84c">/   |   \</tspan><tspan fill="#b05caa">      /\      /\        </tspan></text>
+<text x="6" y="96" font-family="'Courier New',Consolas,monospace" font-size="12" xml:space="preserve"><tspan fill="#cccccc">  </tspan><tspan fill="#d070cc">   /\  /  \    /  \  /\            /\  /  \    /  \  /\    </tspan></text>
+<text x="6" y="111" font-family="'Courier New',Consolas,monospace" font-size="12" xml:space="preserve"><tspan fill="#cccccc">  </tspan><tspan fill="#d070cc">  /  \/    \  /    \/  \          /  \/    \  /    \/  \   </tspan></text>
+</svg>
+<svg id="title" class="scr" viewBox="0 0 725 267" xmlns="http://www.w3.org/2000/svg">
+<rect width="100%" height="100%" fill="#1a1a17"/>
+<text x="6" y="21" font-family="'Courier New',Consolas,monospace" font-size="12" xml:space="preserve"><tspan fill="#b5a642">    .        +      </tspan><tspan fill="#4a8c3f">            </tspan><tspan fill="#5ce6e6">|</tspan><tspan fill="#cccccc">                              </tspan><tspan fill="#5ce6e6">|</tspan><tspan fill="#4a8c3f">            </tspan><tspan fill="#b5a642">         .       '  </tspan></text>
+<text x="6" y="36" font-family="'Courier New',Consolas,monospace" font-size="12" xml:space="preserve"><tspan fill="#b5a642">         .          </tspan><tspan fill="#4a8c3f">     /|\    </tspan><tspan fill="#5ce6e6">|</tspan><tspan fill="#cccccc">    </tspan><tspan fill="#ffffff">S I N A I   T R A I L</tspan><tspan fill="#cccccc">     </tspan><tspan fill="#5ce6e6">|</tspan><tspan fill="#4a8c3f">    /||\    </tspan><tspan fill="#e6c84c">              (    </tspan></text>
+<text x="6" y="51" font-family="'Courier New',Consolas,monospace" font-size="12" xml:space="preserve"><tspan fill="#b5a642">  +    .       '    </tspan><tspan fill="#4a8c3f">    |||||   </tspan><tspan fill="#5ce6e6">|</tspan><tspan fill="#cccccc">                              </tspan><tspan fill="#5ce6e6">|</tspan><tspan fill="#4a8c3f">    ||||    </tspan><tspan fill="#e6c84c">               )   </tspan></text>
+<text x="6" y="66" font-family="'Courier New',Consolas,monospace" font-size="12" xml:space="preserve"><tspan fill="#b5a642">     '     .      + </tspan><tspan fill="#4a8c3f">    |||||   </tspan><tspan fill="#5ce6e6">|</tspan><tspan fill="#cccccc">                              </tspan><tspan fill="#5ce6e6">|</tspan><tspan fill="#4a8c3f">    ||||    </tspan><tspan fill="#b5a642">  '       .        </tspan></text>
+<text x="6" y="81" font-family="'Courier New',Consolas,monospace" font-size="12" xml:space="preserve"><tspan fill="#b5a642"> .            '     </tspan><tspan fill="#4a8c3f">/\  |||||   </tspan><tspan fill="#5ce6e6">|</tspan><tspan fill="#cccccc">   </tspan><tspan fill="#e6c84c">Sky food. Talking rocks.</tspan><tspan fill="#cccccc">   </tspan><tspan fill="#5ce6e6">|</tspan><tspan fill="#4a8c3f">    |||| /|\</tspan><tspan fill="#b5a642">      +         .  </tspan></text>
+<text x="6" y="96" font-family="'Courier New',Consolas,monospace" font-size="12" xml:space="preserve"><tspan fill="#b5a642">       .   +        </tspan><tspan fill="#4a8c3f">||| |||||   </tspan><tspan fill="#5ce6e6">|</tspan><tspan fill="#cccccc">      </tspan><tspan fill="#e6c84c">One cow too many.</tspan><tspan fill="#cccccc">       </tspan><tspan fill="#5ce6e6">|</tspan><tspan fill="#4a8c3f">    |||| |||</tspan><tspan fill="#b5a642">  .        '       </tspan></text>
+<text x="6" y="111" font-family="'Courier New',Consolas,monospace" font-size="12" xml:space="preserve"><tspan fill="#b5a642">  '          .      </tspan><tspan fill="#4a8c3f">||| |||||   </tspan><tspan fill="#5ce6e6">|</tspan><tspan fill="#cccccc">                              </tspan><tspan fill="#5ce6e6">|</tspan><tspan fill="#4a8c3f">    |||| |||</tspan><tspan fill="#b5a642">        .       +  </tspan></text>
+<text x="6" y="126" font-family="'Courier New',Consolas,monospace" font-size="12" xml:space="preserve"><tspan fill="#b5a642">      +          '  </tspan><tspan fill="#4a8c3f"> \|`'||||   </tspan><tspan fill="#5ce6e6">|</tspan><tspan fill="#cccccc">                              </tspan><tspan fill="#5ce6e6">|</tspan><tspan fill="#4a8c3f">    |||| ע||</tspan><tspan fill="#b5a642">   '         .     </tspan></text>
+<text x="6" y="141" font-family="'Courier New',Consolas,monospace" font-size="12" xml:space="preserve"><tspan fill="#b05caa">              /\    </tspan><tspan fill="#4a8c3f">  \_-||||   </tspan><tspan fill="#5ce6e6">|</tspan><tspan fill="#cccccc">                              </tspan><tspan fill="#5ce6e6">|</tspan><tspan fill="#4a8c3f">    |||||||/</tspan><tspan fill="#b05caa">      /\           </tspan></text>
+<text x="6" y="156" font-family="'Courier New',Consolas,monospace" font-size="12" xml:space="preserve"><tspan fill="#b05caa">             /  \   </tspan><tspan fill="#4a8c3f">    ||||`-' </tspan><tspan fill="#5ce6e6">|</tspan><tspan fill="#cccccc">                              </tspan><tspan fill="#5ce6e6">|</tspan><tspan fill="#4a8c3f">    ||||~~' </tspan><tspan fill="#b05caa">     /  \    /\    </tspan></text>
+<text x="6" y="171" font-family="'Courier New',Consolas,monospace" font-size="12" xml:space="preserve"><tspan fill="#b05caa">        /\  / .  \  </tspan><tspan fill="#4a8c3f">    |||| __ </tspan><tspan fill="#5ce6e6">|</tspan><tspan fill="#cccccc">                              </tspan><tspan fill="#5ce6e6">|</tspan><tspan fill="#4a8c3f">    ||||    </tspan><tspan fill="#b05caa">    / .  \  /  \   </tspan></text>
+<text x="6" y="186" font-family="'Courier New',Consolas,monospace" font-size="12" xml:space="preserve"><tspan fill="#d070cc">       /  \/    . \ </tspan><tspan fill="#4a8c3f">    |||||   </tspan><tspan fill="#5ce6e6">|</tspan><tspan fill="#cccccc">       </tspan><tspan fill="#888888">by Adi Moskowitz</tspan><tspan fill="#cccccc">       </tspan><tspan fill="#5ce6e6">|</tspan><tspan fill="#4a8c3f">    ||||    </tspan><tspan fill="#d070cc">   /    . \/  . \  </tspan></text>
+<text x="6" y="201" font-family="'Courier New',Consolas,monospace" font-size="12" xml:space="preserve"><tspan fill="#d070cc">  /\  / .    '    \ </tspan><tspan fill="#4a8c3f">    |||||   </tspan><tspan fill="#5ce6e6">|</tspan><tspan fill="#cccccc">         </tspan><tspan fill="#888888">wala.studio</tspan><tspan fill="#cccccc">          </tspan><tspan fill="#5ce6e6">|</tspan><tspan fill="#4a8c3f">    ||||    </tspan><tspan fill="#d070cc">  / '    .   '   \ </tspan></text>
+<text x="6" y="216" font-family="'Courier New',Consolas,monospace" font-size="12" xml:space="preserve"><tspan fill="#cccccc">  </tspan><tspan fill="#5cb85c">~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~</tspan></text>
+<text x="6" y="231" font-family="'Courier New',Consolas,monospace" font-size="12" xml:space="preserve"><tspan fill="#cccccc">  </tspan><tspan fill="#4a8c3f"> \/..__..--  .    \/..__..--  .   _.      \/  ..__..--  .    \/..__..--  .  \/  ..__..--  .  \/</tspan></text>
+<text x="6" y="246" font-family="'Courier New',Consolas,monospace" font-size="12" xml:space="preserve"><tspan fill="#cccccc">  </tspan><tspan fill="#5cb85c">.__.  \/  ._.--_.  \/ .-..\/  ..- _.  \/ .__.  \/  ._.--_.  \/ .-..\/  ..- _.  \/ .-..\/  .._. </tspan></text>
+<text x="6" y="261" font-family="'Courier New',Consolas,monospace" font-size="12" xml:space="preserve"><tspan fill="#cccccc">  </tspan><tspan fill="#4a8c3f">.   \/    _..\/-     ...--..       \/  ._. .  \/ _..\/-     ...--..     \/  ._.  ...--..    \/   </tspan></text>
+</svg>
+<svg id="intro1" class="scr" viewBox="0 0 790 672" xmlns="http://www.w3.org/2000/svg">
+<rect width="100%" height="100%" fill="#1a1a17"/>
+<text x="6" y="21" font-family="'Courier New',Consolas,monospace" font-size="12" xml:space="preserve"><tspan fill="#b5a642">  '     .      +       +       .</tspan><tspan fill="#5ce6e6">|</tspan><tspan fill="#cccccc">                                          </tspan><tspan fill="#5ce6e6">|</tspan><tspan fill="#b5a642">    .        '     .        '   </tspan></text>
+<text x="6" y="36" font-family="'Courier New',Consolas,monospace" font-size="12" xml:space="preserve"><tspan fill="#b5a642">     +       .        .     +   </tspan><tspan fill="#5ce6e6">|</tspan><tspan fill="#cccccc">              </tspan><tspan fill="#e6c84c">THE FINE PRINT</tspan><tspan fill="#cccccc">              </tspan><tspan fill="#5ce6e6">|</tspan><tspan fill="#e6c84c">                        (       </tspan></text>
+<text x="6" y="51" font-family="'Courier New',Consolas,monospace" font-size="12" xml:space="preserve"><tspan fill="#b5a642">  .      '     +         '      </tspan><tspan fill="#5ce6e6">|</tspan><tspan fill="#cccccc">  </tspan><tspan fill="#888888">terms and conditions of leaving Egypt</tspan><tspan fill="#cccccc">   </tspan><tspan fill="#5ce6e6">|</tspan><tspan fill="#e6c84c">                         )      </tspan></text>
+<text x="6" y="66" font-family="'Courier New',Consolas,monospace" font-size="12" xml:space="preserve"><tspan fill="#b5a642">       .      '       +      .  </tspan><tspan fill="#5ce6e6">|</tspan><tspan fill="#cccccc">                                          </tspan><tspan fill="#5ce6e6">|</tspan><tspan fill="#b5a642">      .     '    .       +      </tspan></text>
+<text x="6" y="81" font-family="'Courier New',Consolas,monospace" font-size="12" xml:space="preserve"><tspan fill="#b5a642">    +      .             .      </tspan><tspan fill="#5ce6e6">|</tspan><tspan fill="#cccccc">            The year is 2448.             </tspan><tspan fill="#5ce6e6">|</tspan><tspan fill="#b5a642">   +       .     '    .      '  </tspan></text>
+<text x="6" y="96" font-family="'Courier New',Consolas,monospace" font-size="12" xml:space="preserve"><tspan fill="#b5a642">  .    '       +      '     .   </tspan><tspan fill="#5ce6e6">|</tspan><tspan fill="#cccccc">                                          </tspan><tspan fill="#5ce6e6">|</tspan><tspan fill="#b5a642">  .     +      .           .    </tspan></text>
+<text x="6" y="111" font-family="'Courier New',Consolas,monospace" font-size="12" xml:space="preserve"><tspan fill="#b5a642">      .     '    .       +      </tspan><tspan fill="#5ce6e6">|</tspan><tspan fill="#cccccc">      You are in a desert. 2 million      </tspan><tspan fill="#5ce6e6">|</tspan><tspan fill="#b5a642">     '      +    .    '     .   </tspan></text>
+<text x="6" y="126" font-family="'Courier New',Consolas,monospace" font-size="12" xml:space="preserve"><tspan fill="#b5a642">   +       .     '    .      '  </tspan><tspan fill="#5ce6e6">|</tspan><tspan fill="#cccccc">      people followed a cloud here.       </tspan><tspan fill="#5ce6e6">|</tspan><tspan fill="#b5a642">  +      .     '         +      </tspan></text>
+<text x="6" y="141" font-family="'Courier New',Consolas,monospace" font-size="12" xml:space="preserve"><tspan fill="#b5a642">  .     +      .           .    </tspan><tspan fill="#5ce6e6">|</tspan><tspan fill="#cccccc">       Nobody asked the cloud where       </tspan><tspan fill="#5ce6e6">|</tspan><tspan fill="#b5a642">     .      +    '    .      '  </tspan></text>
+<text x="6" y="156" font-family="'Courier New',Consolas,monospace" font-size="12" xml:space="preserve"><tspan fill="#b5a642">     '      +    .    '     .   </tspan><tspan fill="#5ce6e6">|</tspan><tspan fill="#cccccc">              it was going.               </tspan><tspan fill="#5ce6e6">|</tspan><tspan fill="#b5a642">  '     .      +           .    </tspan></text>
+<text x="6" y="171" font-family="'Courier New',Consolas,monospace" font-size="12" xml:space="preserve"><tspan fill="#b5a642">  +      .     '         +      </tspan><tspan fill="#5ce6e6">|</tspan><tspan fill="#cccccc">                                          </tspan><tspan fill="#5ce6e6">|</tspan><tspan fill="#b5a642">     +       .    '     +      .</tspan></text>
+<text x="6" y="186" font-family="'Courier New',Consolas,monospace" font-size="12" xml:space="preserve"><tspan fill="#b5a642">     .      +    '    .      '  </tspan><tspan fill="#5ce6e6">|</tspan><tspan fill="#cccccc">       Your food falls from the sky       </tspan><tspan fill="#5ce6e6">|</tspan><tspan fill="#b5a642">  .      '     +      .    '    </tspan></text>
+<text x="6" y="201" font-family="'Courier New',Consolas,monospace" font-size="12" xml:space="preserve"><tspan fill="#b5a642">  '     .      +           .    </tspan><tspan fill="#5ce6e6">|</tspan><tspan fill="#cccccc">     every morning. Your water comes      </tspan><tspan fill="#5ce6e6">|</tspan><tspan fill="#b5a642">       .      '           .     </tspan></text>
+<text x="6" y="216" font-family="'Courier New',Consolas,monospace" font-size="12" xml:space="preserve"><tspan fill="#b5a642">     +       .    '     +      .</tspan><tspan fill="#5ce6e6">|</tspan><tspan fill="#cccccc">     from a rock. No one seems to be      </tspan><tspan fill="#5ce6e6">|</tspan><tspan fill="#b5a642">  '     .      +       +       .</tspan></text>
+<text x="6" y="231" font-family="'Courier New',Consolas,monospace" font-size="12" xml:space="preserve"><tspan fill="#b5a642">  .      '     +      .    '    </tspan><tspan fill="#5ce6e6">|</tspan><tspan fill="#cccccc">         questioning any of this.         </tspan><tspan fill="#5ce6e6">|</tspan><tspan fill="#b5a642">     +       .        .     +   </tspan></text>
+<text x="6" y="246" font-family="'Courier New',Consolas,monospace" font-size="12" xml:space="preserve"><tspan fill="#b5a642">       .      '           .     </tspan><tspan fill="#5ce6e6">|</tspan><tspan fill="#cccccc">                                          </tspan><tspan fill="#5ce6e6">|</tspan><tspan fill="#b5a642">  .      '     +         '      </tspan></text>
+<text x="6" y="261" font-family="'Courier New',Consolas,monospace" font-size="12" xml:space="preserve"><tspan fill="#b5a642">  '     .      +       +       .</tspan><tspan fill="#5ce6e6">|</tspan><tspan fill="#cccccc">      A week ago a sea split in half      </tspan><tspan fill="#5ce6e6">|</tspan><tspan fill="#b5a642">       .      '       +      .  </tspan></text>
+<text x="6" y="276" font-family="'Courier New',Consolas,monospace" font-size="12" xml:space="preserve"><tspan fill="#b5a642">     +       .        .     +   </tspan><tspan fill="#5ce6e6">|</tspan><tspan fill="#cccccc">         and a woman pulled out a         </tspan><tspan fill="#5ce6e6">|</tspan><tspan fill="#b5a642">    +      .             .      </tspan></text>
+<text x="6" y="291" font-family="'Courier New',Consolas,monospace" font-size="12" xml:space="preserve"><tspan fill="#b5a642">  .      '     +         '      </tspan><tspan fill="#5ce6e6">|</tspan><tspan fill="#cccccc">      tambourine, because what else       </tspan><tspan fill="#5ce6e6">|</tspan><tspan fill="#b5a642">  .    '       +      '     .   </tspan></text>
+<text x="6" y="306" font-family="'Courier New',Consolas,monospace" font-size="12" xml:space="preserve"><tspan fill="#b5a642">       .      '       +      .  </tspan><tspan fill="#5ce6e6">|</tspan><tspan fill="#cccccc">     do you do in a moment like that?     </tspan><tspan fill="#5ce6e6">|</tspan><tspan fill="#b5a642">      .     '    .       +      </tspan></text>
+<text x="6" y="321" font-family="'Courier New',Consolas,monospace" font-size="12" xml:space="preserve"><tspan fill="#b5a642">    +      .             .      </tspan><tspan fill="#5ce6e6">|</tspan><tspan fill="#cccccc">                                          </tspan><tspan fill="#5ce6e6">|</tspan><tspan fill="#b5a642">   +       .     '    .      '  </tspan></text>
+<text x="6" y="336" font-family="'Courier New',Consolas,monospace" font-size="12" xml:space="preserve"><tspan fill="#b5a642">  .    '       +      '     .   </tspan><tspan fill="#5ce6e6">|</tspan><tspan fill="#cccccc">      Your leader went up a mountain      </tspan><tspan fill="#5ce6e6">|</tspan><tspan fill="#b5a642">  .     +      .           .    </tspan></text>
+<text x="6" y="351" font-family="'Courier New',Consolas,monospace" font-size="12" xml:space="preserve"><tspan fill="#b5a642">      .     '    .       +      </tspan><tspan fill="#5ce6e6">|</tspan><tspan fill="#cccccc">      this morning. He said 40 days.      </tspan><tspan fill="#5ce6e6">|</tspan><tspan fill="#b5a642">     '      +    .    '     .   </tspan></text>
+<text x="6" y="366" font-family="'Courier New',Consolas,monospace" font-size="12" xml:space="preserve"><tspan fill="#b5a642">   +       .     '    .      '  </tspan><tspan fill="#5ce6e6">|</tspan><tspan fill="#cccccc">      He did not leave instructions.      </tspan><tspan fill="#5ce6e6">|</tspan><tspan fill="#b5a642">  +      .     '         +      </tspan></text>
+<text x="6" y="381" font-family="'Courier New',Consolas,monospace" font-size="12" xml:space="preserve"><tspan fill="#b5a642">  .     +      .           .    </tspan><tspan fill="#5ce6e6">|</tspan><tspan fill="#cccccc">            You are on day 1.             </tspan><tspan fill="#5ce6e6">|</tspan><tspan fill="#b5a642">     .      +    '    .      '  </tspan></text>
+<text x="6" y="396" font-family="'Courier New',Consolas,monospace" font-size="12" xml:space="preserve"><tspan fill="#b5a642">     '      +    .    '     .   </tspan><tspan fill="#5ce6e6">|</tspan><tspan fill="#cccccc">                                          </tspan><tspan fill="#5ce6e6">|</tspan><tspan fill="#b5a642">  '     .      +           .    </tspan></text>
+<text x="6" y="411" font-family="'Courier New',Consolas,monospace" font-size="12" xml:space="preserve"><tspan fill="#b5a642">  +      .     '         +      </tspan><tspan fill="#5ce6e6">|</tspan><tspan fill="#cccccc">       There is gold in the camp--a       </tspan><tspan fill="#5ce6e6">|</tspan><tspan fill="#b5a642">     +       .    '     +      .</tspan></text>
+<text x="6" y="426" font-family="'Courier New',Consolas,monospace" font-size="12" xml:space="preserve"><tspan fill="#b5a642">     .      +    '    .      '  </tspan><tspan fill="#5ce6e6">|</tspan><tspan fill="#cccccc">       lot of it--back pay from 400       </tspan><tspan fill="#5ce6e6">|</tspan><tspan fill="#b5a642">  .      '     +      .    '    </tspan></text>
+<text x="6" y="441" font-family="'Courier New',Consolas,monospace" font-size="12" xml:space="preserve"><tspan fill="#b5a642">  '     .      +           .    </tspan><tspan fill="#5ce6e6">|</tspan><tspan fill="#cccccc">        years of slavery in Egypt.        </tspan><tspan fill="#5ce6e6">|</tspan><tspan fill="#b5a642">       .      '           .     </tspan></text>
+<text x="6" y="456" font-family="'Courier New',Consolas,monospace" font-size="12" xml:space="preserve"><tspan fill="#b5a642">     +       .    '     +      .</tspan><tspan fill="#5ce6e6">|</tspan><tspan fill="#cccccc">      Everyone has an opinion about       </tspan><tspan fill="#5ce6e6">|</tspan><tspan fill="#b5a642">  '     .      +       +       .</tspan></text>
+<text x="6" y="471" font-family="'Courier New',Consolas,monospace" font-size="12" xml:space="preserve"><tspan fill="#b5a642">  .      '     +      .    '    </tspan><tspan fill="#5ce6e6">|</tspan><tspan fill="#cccccc">       the gold. Nobody has a plan.       </tspan><tspan fill="#5ce6e6">|</tspan><tspan fill="#b5a642">     +       .        .     +   </tspan></text>
+<text x="6" y="486" font-family="'Courier New',Consolas,monospace" font-size="12" xml:space="preserve"><tspan fill="#b5a642">       .      '           .     </tspan><tspan fill="#5ce6e6">|</tspan><tspan fill="#cccccc">          Someone is about to do          </tspan><tspan fill="#5ce6e6">|</tspan><tspan fill="#b5a642">  .      '     +         '      </tspan></text>
+<text x="6" y="501" font-family="'Courier New',Consolas,monospace" font-size="12" xml:space="preserve"><tspan fill="#b5a642">  '     .      +       +       .</tspan><tspan fill="#5ce6e6">|</tspan><tspan fill="#cccccc">            something stupid.             </tspan><tspan fill="#5ce6e6">|</tspan><tspan fill="#b5a642">       .      '       +      .  </tspan></text>
+<text x="6" y="516" font-family="'Courier New',Consolas,monospace" font-size="12" xml:space="preserve"><tspan fill="#b5a642">     +       .        .     +   </tspan><tspan fill="#5ce6e6">|</tspan><tspan fill="#cccccc">                                          </tspan><tspan fill="#5ce6e6">|</tspan><tspan fill="#b5a642">    +      .             .      </tspan></text>
+<text x="6" y="531" font-family="'Courier New',Consolas,monospace" font-size="12" xml:space="preserve"><tspan fill="#b5a642">  .      '     +         '      </tspan><tspan fill="#5ce6e6">|</tspan><tspan fill="#cccccc">          Manage your resources.          </tspan><tspan fill="#5ce6e6">|</tspan><tspan fill="#b5a642">  .    '       +      '     .   </tspan></text>
+<text x="6" y="546" font-family="'Courier New',Consolas,monospace" font-size="12" xml:space="preserve"><tspan fill="#b05caa">                      /\        </tspan><tspan fill="#5ce6e6">|</tspan><tspan fill="#cccccc">            Keep your people.             </tspan><tspan fill="#5ce6e6">|</tspan><tspan fill="#b05caa">       /\            /\   /  \  </tspan></text>
+<text x="6" y="561" font-family="'Courier New',Consolas,monospace" font-size="12" xml:space="preserve"><tspan fill="#b05caa">              /\     /  \  /\   </tspan><tspan fill="#5ce6e6">|</tspan><tspan fill="#cccccc">          Survive what's coming.          </tspan><tspan fill="#5ce6e6">|</tspan><tspan fill="#b05caa">      /  \    /\    /  \ /      </tspan></text>
+<text x="6" y="576" font-family="'Courier New',Consolas,monospace" font-size="12" xml:space="preserve"><tspan fill="#b05caa">        /\   /  \   /    \/  \  </tspan><tspan fill="#5ce6e6">|</tspan><tspan fill="#cccccc">                                          </tspan><tspan fill="#5ce6e6">|</tspan><tspan fill="#b05caa">  /\ /    \  /  \  /    \/      </tspan></text>
+<text x="6" y="591" font-family="'Courier New',Consolas,monospace" font-size="12" xml:space="preserve"><tspan fill="#d070cc">       /  \ /    \ /          \ </tspan><tspan fill="#5ce6e6">|</tspan><tspan fill="#cccccc">         Welcome to Sinai Trail.          </tspan><tspan fill="#5ce6e6">|</tspan><tspan fill="#d070cc"> /  \/      \/    \/            </tspan></text>
+<text x="6" y="606" font-family="'Courier New',Consolas,monospace" font-size="12" xml:space="preserve"><tspan fill="#d070cc">  /\  /    \/      \            </tspan><tspan fill="#5ce6e6">|</tspan><tspan fill="#cccccc">                                          </tspan><tspan fill="#5ce6e6">|</tspan><tspan fill="#d070cc">/                               </tspan></text>
+<text x="6" y="621" font-family="'Courier New',Consolas,monospace" font-size="12" xml:space="preserve"><tspan fill="#cccccc">  </tspan><tspan fill="#5cb85c">~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~</tspan></text>
+<text x="6" y="636" font-family="'Courier New',Consolas,monospace" font-size="12" xml:space="preserve"><tspan fill="#cccccc">  </tspan><tspan fill="#4a8c3f"> \/..__..--  .    \/..__..--  .   _.      \/  ..__..--  .    \/..__..--  .  \/  ..__..--  .  \/ .  \/ .__.</tspan></text>
+<text x="6" y="651" font-family="'Courier New',Consolas,monospace" font-size="12" xml:space="preserve"><tspan fill="#cccccc">  </tspan><tspan fill="#5cb85c">.__.  \/  ._.--_.  \/ .-..\/  ..- _.  \/ .__.  \/  ._.--_.  \/ .-..\/  ..- _.  \/ .-..\/  .._. \/ ..__..--</tspan></text>
+<text x="6" y="666" font-family="'Courier New',Consolas,monospace" font-size="12" xml:space="preserve"><tspan fill="#cccccc">  </tspan><tspan fill="#4a8c3f">.   \/    _..\/-     ...--..       \/  ._. .  \/ _..\/-     ...--..     \/  ._.  ...--..    \/   ._.  \/ .</tspan></text>
+</svg>
+<svg id="intro2" class="scr" viewBox="0 0 790 462" xmlns="http://www.w3.org/2000/svg">
+<rect width="100%" height="100%" fill="#1a1a17"/>
+<text x="6" y="21" font-family="'Courier New',Consolas,monospace" font-size="12" xml:space="preserve"><tspan fill="#b5a642">  '     .      +       +       .</tspan><tspan fill="#5ce6e6">|</tspan><tspan fill="#cccccc">                                          </tspan><tspan fill="#5ce6e6">|</tspan><tspan fill="#b5a642">    .        '     .        '   </tspan></text>
+<text x="6" y="36" font-family="'Courier New',Consolas,monospace" font-size="12" xml:space="preserve"><tspan fill="#b5a642">     +       .        .     +   </tspan><tspan fill="#5ce6e6">|</tspan><tspan fill="#cccccc">              </tspan><tspan fill="#e6c84c">THE SITUATION</tspan><tspan fill="#cccccc">               </tspan><tspan fill="#5ce6e6">|</tspan><tspan fill="#e6c84c">                        (       </tspan></text>
+<text x="6" y="51" font-family="'Courier New',Consolas,monospace" font-size="12" xml:space="preserve"><tspan fill="#b5a642">  .      '     +         '      </tspan><tspan fill="#5ce6e6">|</tspan><tspan fill="#cccccc">                                          </tspan><tspan fill="#5ce6e6">|</tspan><tspan fill="#e6c84c">                         )      </tspan></text>
+<text x="6" y="66" font-family="'Courier New',Consolas,monospace" font-size="12" xml:space="preserve"><tspan fill="#b5a642">       .      '       +      .  </tspan><tspan fill="#5ce6e6">|</tspan><tspan fill="#cccccc">     Three resources. Four problems.      </tspan><tspan fill="#5ce6e6">|</tspan><tspan fill="#b5a642">      .     '    .       +      </tspan></text>
+<text x="6" y="81" font-family="'Courier New',Consolas,monospace" font-size="12" xml:space="preserve"><tspan fill="#b5a642">    +      .             .      </tspan><tspan fill="#5ce6e6">|</tspan><tspan fill="#cccccc">                                          </tspan><tspan fill="#5ce6e6">|</tspan><tspan fill="#b5a642">   +       .     '    .      '  </tspan></text>
+<text x="6" y="96" font-family="'Courier New',Consolas,monospace" font-size="12" xml:space="preserve"><tspan fill="#b5a642">  .    '       +      '     .   </tspan><tspan fill="#5ce6e6">|</tspan><tspan fill="#cccccc">          Manna: falls from sky,          </tspan><tspan fill="#5ce6e6">|</tspan><tspan fill="#b5a642">  .     +      .           .    </tspan></text>
+<text x="6" y="111" font-family="'Courier New',Consolas,monospace" font-size="12" xml:space="preserve"><tspan fill="#b5a642">      .     '    .       +      </tspan><tspan fill="#5ce6e6">|</tspan><tspan fill="#cccccc">             rots overnight.              </tspan><tspan fill="#5ce6e6">|</tspan><tspan fill="#b5a642">     '      +    .    '     .   </tspan></text>
+<text x="6" y="126" font-family="'Courier New',Consolas,monospace" font-size="12" xml:space="preserve"><tspan fill="#b5a642">   +       .     '    .      '  </tspan><tspan fill="#5ce6e6">|</tspan><tspan fill="#cccccc">           Trust the sky food.            </tspan><tspan fill="#5ce6e6">|</tspan><tspan fill="#b5a642">  +      .     '         +      </tspan></text>
+<text x="6" y="141" font-family="'Courier New',Consolas,monospace" font-size="12" xml:space="preserve"><tspan fill="#b5a642">  .     +      .           .    </tspan><tspan fill="#5ce6e6">|</tspan><tspan fill="#cccccc">                                          </tspan><tspan fill="#5ce6e6">|</tspan><tspan fill="#b5a642">     .      +    '    .      '  </tspan></text>
+<text x="6" y="156" font-family="'Courier New',Consolas,monospace" font-size="12" xml:space="preserve"><tspan fill="#b5a642">     '      +    .    '     .   </tspan><tspan fill="#5ce6e6">|</tspan><tspan fill="#cccccc">         Water: rock. Don't ask.          </tspan><tspan fill="#5ce6e6">|</tspan><tspan fill="#b5a642">  '     .      +           .    </tspan></text>
+<text x="6" y="171" font-family="'Courier New',Consolas,monospace" font-size="12" xml:space="preserve"><tspan fill="#b5a642">  +      .     '         +      </tspan><tspan fill="#5ce6e6">|</tspan><tspan fill="#cccccc">                                          </tspan><tspan fill="#5ce6e6">|</tspan><tspan fill="#b5a642">     +       .    '     +      .</tspan></text>
+<text x="6" y="186" font-family="'Courier New',Consolas,monospace" font-size="12" xml:space="preserve"><tspan fill="#b5a642">     .      +    '    .      '  </tspan><tspan fill="#5ce6e6">|</tspan><tspan fill="#cccccc">        Gold: Egyptian, dangerous.        </tspan><tspan fill="#5ce6e6">|</tspan><tspan fill="#b5a642">  .      '     +      .    '    </tspan></text>
+<text x="6" y="201" font-family="'Courier New',Consolas,monospace" font-size="12" xml:space="preserve"><tspan fill="#b5a642">  '     .      +           .    </tspan><tspan fill="#5ce6e6">|</tspan><tspan fill="#cccccc">                                          </tspan><tspan fill="#5ce6e6">|</tspan><tspan fill="#b5a642">       .      '           .     </tspan></text>
+<text x="6" y="216" font-family="'Courier New',Consolas,monospace" font-size="12" xml:space="preserve"><tspan fill="#b5a642">     +       .    '     +      .</tspan><tspan fill="#5ce6e6">|</tspan><tspan fill="#cccccc">    Your nerve is yours, and limited.     </tspan><tspan fill="#5ce6e6">|</tspan><tspan fill="#b5a642">  '     .      +       +       .</tspan></text>
+<text x="6" y="231" font-family="'Courier New',Consolas,monospace" font-size="12" xml:space="preserve"><tspan fill="#b5a642">  .      '     +      .    '    </tspan><tspan fill="#5ce6e6">|</tspan><tspan fill="#cccccc">                                          </tspan><tspan fill="#5ce6e6">|</tspan><tspan fill="#b5a642">     +       .        .     +   </tspan></text>
+<text x="6" y="246" font-family="'Courier New',Consolas,monospace" font-size="12" xml:space="preserve"><tspan fill="#b5a642">       .      '           .     </tspan><tspan fill="#5ce6e6">|</tspan><tspan fill="#cccccc">       Your camp is full of people        </tspan><tspan fill="#5ce6e6">|</tspan><tspan fill="#b5a642">  .      '     +         '      </tspan></text>
+<text x="6" y="261" font-family="'Courier New',Consolas,monospace" font-size="12" xml:space="preserve"><tspan fill="#b5a642">  '     .      +       +       .</tspan><tspan fill="#5ce6e6">|</tspan><tspan fill="#cccccc">         with opinions, and gold.         </tspan><tspan fill="#5ce6e6">|</tspan><tspan fill="#b5a642">       .      '       +      .  </tspan></text>
+<text x="6" y="276" font-family="'Courier New',Consolas,monospace" font-size="12" xml:space="preserve"><tspan fill="#b5a642">     +       .        .     +   </tspan><tspan fill="#5ce6e6">|</tspan><tspan fill="#cccccc">                                          </tspan><tspan fill="#5ce6e6">|</tspan><tspan fill="#b5a642">    +      .             .      </tspan></text>
+<text x="6" y="291" font-family="'Courier New',Consolas,monospace" font-size="12" xml:space="preserve"><tspan fill="#b5a642">  .      '     +         '      </tspan><tspan fill="#5ce6e6">|</tspan><tspan fill="#cccccc">       Signal is your line to Moshe       </tspan><tspan fill="#5ce6e6">|</tspan><tspan fill="#b5a642">  .    '       +      '     .   </tspan></text>
+<text x="6" y="306" font-family="'Courier New',Consolas,monospace" font-size="12" xml:space="preserve"><tspan fill="#b5a642">       .      '       +      .  </tspan><tspan fill="#5ce6e6">|</tspan><tspan fill="#cccccc">       on the mountain. He did not        </tspan><tspan fill="#5ce6e6">|</tspan><tspan fill="#b5a642">      .     '    .       +      </tspan></text>
+<text x="6" y="321" font-family="'Courier New',Consolas,monospace" font-size="12" xml:space="preserve"><tspan fill="#b5a642">    +      .             .      </tspan><tspan fill="#5ce6e6">|</tspan><tspan fill="#cccccc">           leave instructions.            </tspan><tspan fill="#5ce6e6">|</tspan><tspan fill="#b5a642">   +       .     '    .      '  </tspan></text>
+<text x="6" y="336" font-family="'Courier New',Consolas,monospace" font-size="12" xml:space="preserve"><tspan fill="#b05caa">                      /\        </tspan><tspan fill="#5ce6e6">|</tspan><tspan fill="#cccccc">           This was by design.            </tspan><tspan fill="#5ce6e6">|</tspan><tspan fill="#b05caa">       /\            /\   /  \  </tspan></text>
+<text x="6" y="351" font-family="'Courier New',Consolas,monospace" font-size="12" xml:space="preserve"><tspan fill="#b05caa">              /\     /  \  /\   </tspan><tspan fill="#5ce6e6">|</tspan><tspan fill="#cccccc">                                          </tspan><tspan fill="#5ce6e6">|</tspan><tspan fill="#b05caa">      /  \    /\    /  \ /      </tspan></text>
+<text x="6" y="366" font-family="'Courier New',Consolas,monospace" font-size="12" xml:space="preserve"><tspan fill="#b05caa">        /\   /  \   /    \/  \  </tspan><tspan fill="#5ce6e6">|</tspan><tspan fill="#cccccc">            Things will break.            </tspan><tspan fill="#5ce6e6">|</tspan><tspan fill="#b05caa">  /\ /    \  /  \  /    \/      </tspan></text>
+<text x="6" y="381" font-family="'Courier New',Consolas,monospace" font-size="12" xml:space="preserve"><tspan fill="#d070cc">       /  \ /    \ /          \ </tspan><tspan fill="#5ce6e6">|</tspan><tspan fill="#cccccc">            The gold will not.            </tspan><tspan fill="#5ce6e6">|</tspan><tspan fill="#d070cc"> /  \/      \/    \/            </tspan></text>
+<text x="6" y="396" font-family="'Courier New',Consolas,monospace" font-size="12" xml:space="preserve"><tspan fill="#d070cc">  /\  /    \/      \            </tspan><tspan fill="#5ce6e6">|</tspan><tspan fill="#cccccc">                                          </tspan><tspan fill="#5ce6e6">|</tspan><tspan fill="#d070cc">/                               </tspan></text>
+<text x="6" y="411" font-family="'Courier New',Consolas,monospace" font-size="12" xml:space="preserve"><tspan fill="#cccccc">  </tspan><tspan fill="#5cb85c">~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~</tspan></text>
+<text x="6" y="426" font-family="'Courier New',Consolas,monospace" font-size="12" xml:space="preserve"><tspan fill="#cccccc">  </tspan><tspan fill="#4a8c3f"> \/..__..--  .    \/..__..--  .   _.      \/  ..__..--  .    \/..__..--  .  \/  ..__..--  .  \/ .  \/ .__.</tspan></text>
+<text x="6" y="441" font-family="'Courier New',Consolas,monospace" font-size="12" xml:space="preserve"><tspan fill="#cccccc">  </tspan><tspan fill="#5cb85c">.__.  \/  ._.--_.  \/ .-..\/  ..- _.  \/ .__.  \/  ._.--_.  \/ .-..\/  ..- _.  \/ .-..\/  .._. \/ ..__..--</tspan></text>
+<text x="6" y="456" font-family="'Courier New',Consolas,monospace" font-size="12" xml:space="preserve"><tspan fill="#cccccc">  </tspan><tspan fill="#4a8c3f">.   \/    _..\/-     ...--..       \/  ._. .  \/ _..\/-     ...--..     \/  ._.  ...--..    \/   ._.  \/ .</tspan></text>
+</svg>
+<svg id="intro3" class="scr" viewBox="0 0 790 477" xmlns="http://www.w3.org/2000/svg">
+<rect width="100%" height="100%" fill="#1a1a17"/>
+<text x="6" y="21" font-family="'Courier New',Consolas,monospace" font-size="12" xml:space="preserve"><tspan fill="#b5a642">  '     .      +       +       .</tspan><tspan fill="#5ce6e6">|</tspan><tspan fill="#cccccc">                                          </tspan><tspan fill="#5ce6e6">|</tspan><tspan fill="#b5a642">    .        '     .        '   </tspan></text>
+<text x="6" y="36" font-family="'Courier New',Consolas,monospace" font-size="12" xml:space="preserve"><tspan fill="#b5a642">     +       .        .     +   </tspan><tspan fill="#5ce6e6">|</tspan><tspan fill="#cccccc">                 </tspan><tspan fill="#e6c84c">THE GAME</tspan><tspan fill="#cccccc">                 </tspan><tspan fill="#5ce6e6">|</tspan><tspan fill="#e6c84c">                        (       </tspan></text>
+<text x="6" y="51" font-family="'Courier New',Consolas,monospace" font-size="12" xml:space="preserve"><tspan fill="#b5a642">  .      '     +         '      </tspan><tspan fill="#5ce6e6">|</tspan><tspan fill="#cccccc">                                          </tspan><tspan fill="#5ce6e6">|</tspan><tspan fill="#e6c84c">                         )      </tspan></text>
+<text x="6" y="66" font-family="'Courier New',Consolas,monospace" font-size="12" xml:space="preserve"><tspan fill="#b5a642">       .      '       +      .  </tspan><tspan fill="#5ce6e6">|</tspan><tspan fill="#cccccc">       Every morning: gather manna.       </tspan><tspan fill="#5ce6e6">|</tspan><tspan fill="#b5a642">      .     '    .       +      </tspan></text>
+<text x="6" y="81" font-family="'Courier New',Consolas,monospace" font-size="12" xml:space="preserve"><tspan fill="#b5a642">    +      .             .      </tspan><tspan fill="#5ce6e6">|</tspan><tspan fill="#cccccc">                                          </tspan><tspan fill="#5ce6e6">|</tspan><tspan fill="#b5a642">   +       .     '    .      '  </tspan></text>
+<text x="6" y="96" font-family="'Courier New',Consolas,monospace" font-size="12" xml:space="preserve"><tspan fill="#b5a642">  .    '       +      '     .   </tspan><tspan fill="#5ce6e6">|</tspan><tspan fill="#cccccc">     Every day: something goes wrong.     </tspan><tspan fill="#5ce6e6">|</tspan><tspan fill="#b5a642">  .     +      .           .    </tspan></text>
+<text x="6" y="111" font-family="'Courier New',Consolas,monospace" font-size="12" xml:space="preserve"><tspan fill="#b5a642">      .     '    .       +      </tspan><tspan fill="#5ce6e6">|</tspan><tspan fill="#cccccc">                                          </tspan><tspan fill="#5ce6e6">|</tspan><tspan fill="#b5a642">     '      +    .    '     .   </tspan></text>
+<text x="6" y="126" font-family="'Courier New',Consolas,monospace" font-size="12" xml:space="preserve"><tspan fill="#b5a642">   +       .     '    .      '  </tspan><tspan fill="#5ce6e6">|</tspan><tspan fill="#cccccc">     Expect the unexpected, you were      </tspan><tspan fill="#5ce6e6">|</tspan><tspan fill="#b5a642">  +      .     '         +      </tspan></text>
+<text x="6" y="141" font-family="'Courier New',Consolas,monospace" font-size="12" xml:space="preserve"><tspan fill="#b5a642">  .     +      .           .    </tspan><tspan fill="#5ce6e6">|</tspan><tspan fill="#cccccc">     led here by a cloud, after all.      </tspan><tspan fill="#5ce6e6">|</tspan><tspan fill="#b5a642">     .      +    '    .      '  </tspan></text>
+<text x="6" y="156" font-family="'Courier New',Consolas,monospace" font-size="12" xml:space="preserve"><tspan fill="#b5a642">     '      +    .    '     .   </tspan><tspan fill="#5ce6e6">|</tspan><tspan fill="#cccccc">                                          </tspan><tspan fill="#5ce6e6">|</tspan><tspan fill="#b5a642">  '     .      +           .    </tspan></text>
+<text x="6" y="171" font-family="'Courier New',Consolas,monospace" font-size="12" xml:space="preserve"><tspan fill="#b5a642">  +      .     '         +      </tspan><tspan fill="#5ce6e6">|</tspan><tspan fill="#cccccc">     Your task is simple: don't lose      </tspan><tspan fill="#5ce6e6">|</tspan><tspan fill="#b5a642">     +       .    '     +      .</tspan></text>
+<text x="6" y="186" font-family="'Courier New',Consolas,monospace" font-size="12" xml:space="preserve"><tspan fill="#b5a642">     .      +    '    .      '  </tspan><tspan fill="#5ce6e6">|</tspan><tspan fill="#cccccc">      your nerve or the camp before       </tspan><tspan fill="#5ce6e6">|</tspan><tspan fill="#b5a642">  .      '     +      .    '    </tspan></text>
+<text x="6" y="201" font-family="'Courier New',Consolas,monospace" font-size="12" xml:space="preserve"><tspan fill="#b5a642">  '     .      +           .    </tspan><tspan fill="#5ce6e6">|</tspan><tspan fill="#cccccc">              Moshe returns.              </tspan><tspan fill="#5ce6e6">|</tspan><tspan fill="#b5a642">       .      '           .     </tspan></text>
+<text x="6" y="216" font-family="'Courier New',Consolas,monospace" font-size="12" xml:space="preserve"><tspan fill="#b5a642">     +       .    '     +      .</tspan><tspan fill="#5ce6e6">|</tspan><tspan fill="#cccccc">                                          </tspan><tspan fill="#5ce6e6">|</tspan><tspan fill="#b5a642">  '     .      +       +       .</tspan></text>
+<text x="6" y="231" font-family="'Courier New',Consolas,monospace" font-size="12" xml:space="preserve"><tspan fill="#b5a642">  .      '     +      .    '    </tspan><tspan fill="#5ce6e6">|</tspan><tspan fill="#cccccc">       You cannot prevent the cow.        </tspan><tspan fill="#5ce6e6">|</tspan><tspan fill="#b5a642">     +       .        .     +   </tspan></text>
+<text x="6" y="246" font-family="'Courier New',Consolas,monospace" font-size="12" xml:space="preserve"><tspan fill="#b5a642">       .      '           .     </tspan><tspan fill="#5ce6e6">|</tspan><tspan fill="#cccccc">        You know this. They don't.        </tspan><tspan fill="#5ce6e6">|</tspan><tspan fill="#b5a642">  .      '     +         '      </tspan></text>
+<text x="6" y="261" font-family="'Courier New',Consolas,monospace" font-size="12" xml:space="preserve"><tspan fill="#b5a642">  '     .      +       +       .</tspan><tspan fill="#5ce6e6">|</tspan><tspan fill="#cccccc">          You cannot warn them.           </tspan><tspan fill="#5ce6e6">|</tspan><tspan fill="#b5a642">       .      '       +      .  </tspan></text>
+<text x="6" y="276" font-family="'Courier New',Consolas,monospace" font-size="12" xml:space="preserve"><tspan fill="#b5a642">     +       .        .     +   </tspan><tspan fill="#5ce6e6">|</tspan><tspan fill="#cccccc">                                          </tspan><tspan fill="#5ce6e6">|</tspan><tspan fill="#b5a642">    +      .             .      </tspan></text>
+<text x="6" y="291" font-family="'Courier New',Consolas,monospace" font-size="12" xml:space="preserve"><tspan fill="#b5a642">  .      '     +         '      </tspan><tspan fill="#5ce6e6">|</tspan><tspan fill="#cccccc">     You cannot stop the worst thing.     </tspan><tspan fill="#5ce6e6">|</tspan><tspan fill="#b5a642">  .    '       +      '     .   </tspan></text>
+<text x="6" y="306" font-family="'Courier New',Consolas,monospace" font-size="12" xml:space="preserve"><tspan fill="#b5a642">       .      '       +      .  </tspan><tspan fill="#5ce6e6">|</tspan><tspan fill="#cccccc">       The game does not end at the       </tspan><tspan fill="#5ce6e6">|</tspan><tspan fill="#b5a642">      .     '    .       +      </tspan></text>
+<text x="6" y="321" font-family="'Courier New',Consolas,monospace" font-size="12" xml:space="preserve"><tspan fill="#b5a642">    +      .             .      </tspan><tspan fill="#5ce6e6">|</tspan><tspan fill="#cccccc">               worst thing.               </tspan><tspan fill="#5ce6e6">|</tspan><tspan fill="#b5a642">   +       .     '    .      '  </tspan></text>
+<text x="6" y="336" font-family="'Courier New',Consolas,monospace" font-size="12" xml:space="preserve"><tspan fill="#b5a642">  .    '       +      '     .   </tspan><tspan fill="#5ce6e6">|</tspan><tspan fill="#cccccc">                                          </tspan><tspan fill="#5ce6e6">|</tspan><tspan fill="#b5a642">  .     +      .           .    </tspan></text>
+<text x="6" y="351" font-family="'Courier New',Consolas,monospace" font-size="12" xml:space="preserve"><tspan fill="#b05caa">                      /\        </tspan><tspan fill="#5ce6e6">|</tspan><tspan fill="#cccccc">       The game ends at the repair.       </tspan><tspan fill="#5ce6e6">|</tspan><tspan fill="#b05caa">       /\            /\   /  \  </tspan></text>
+<text x="6" y="366" font-family="'Courier New',Consolas,monospace" font-size="12" xml:space="preserve"><tspan fill="#b05caa">              /\     /  \  /\   </tspan><tspan fill="#5ce6e6">|</tspan><tspan fill="#cccccc">         The repair is the point.         </tspan><tspan fill="#5ce6e6">|</tspan><tspan fill="#b05caa">      /  \    /\    /  \ /      </tspan></text>
+<text x="6" y="381" font-family="'Courier New',Consolas,monospace" font-size="12" xml:space="preserve"><tspan fill="#b05caa">        /\   /  \   /    \/  \  </tspan><tspan fill="#5ce6e6">|</tspan><tspan fill="#cccccc">                                          </tspan><tspan fill="#5ce6e6">|</tspan><tspan fill="#b05caa">  /\ /    \  /  \  /    \/      </tspan></text>
+<text x="6" y="396" font-family="'Courier New',Consolas,monospace" font-size="12" xml:space="preserve"><tspan fill="#d070cc">       /  \ /    \ /          \ </tspan><tspan fill="#5ce6e6">|</tspan><tspan fill="#cccccc">           Earn it. Good luck.            </tspan><tspan fill="#5ce6e6">|</tspan><tspan fill="#d070cc"> /  \/      \/    \/            </tspan></text>
+<text x="6" y="411" font-family="'Courier New',Consolas,monospace" font-size="12" xml:space="preserve"><tspan fill="#d070cc">  /\  /    \/      \            </tspan><tspan fill="#5ce6e6">|</tspan><tspan fill="#cccccc">                                          </tspan><tspan fill="#5ce6e6">|</tspan><tspan fill="#d070cc">/                               </tspan></text>
+<text x="6" y="426" font-family="'Courier New',Consolas,monospace" font-size="12" xml:space="preserve"><tspan fill="#cccccc">  </tspan><tspan fill="#5cb85c">~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~</tspan></text>
+<text x="6" y="441" font-family="'Courier New',Consolas,monospace" font-size="12" xml:space="preserve"><tspan fill="#cccccc">  </tspan><tspan fill="#4a8c3f"> \/..__..--  .    \/..__..--  .   _.      \/  ..__..--  .    \/..__..--  .  \/  ..__..--  .  \/ .  \/ .__.</tspan></text>
+<text x="6" y="456" font-family="'Courier New',Consolas,monospace" font-size="12" xml:space="preserve"><tspan fill="#cccccc">  </tspan><tspan fill="#5cb85c">.__.  \/  ._.--_.  \/ .-..\/  ..- _.  \/ .__.  \/  ._.--_.  \/ .-..\/  ..- _.  \/ .-..\/  .._. \/ ..__..--</tspan></text>
+<text x="6" y="471" font-family="'Courier New',Consolas,monospace" font-size="12" xml:space="preserve"><tspan fill="#cccccc">  </tspan><tspan fill="#4a8c3f">.   \/    _..\/-     ...--..       \/  ._. .  \/ _..\/-     ...--..     \/  ._.  ...--..    \/   ._.  \/ .</tspan></text>
+</svg>
+
+<div id="game"></div>
+<svg id="grass" class="grs" viewBox="0 0 502 72" xmlns="http://www.w3.org/2000/svg">
+<rect width="100%" height="100%" fill="#1a1a17"/>
+<text x="6" y="21" font-family="'Courier New',Consolas,monospace" font-size="12" xml:space="preserve"><tspan fill="#cccccc">  </tspan><tspan fill="#5cb85c">~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~</tspan></text>
+<text x="6" y="36" font-family="'Courier New',Consolas,monospace" font-size="12" xml:space="preserve"><tspan fill="#cccccc">  </tspan><tspan fill="#4a8c3f"> \/..__..--  .    \/..__..--  .   _.      \/  ..__..--  .    \/ . </tspan></text>
+<text x="6" y="51" font-family="'Courier New',Consolas,monospace" font-size="12" xml:space="preserve"><tspan fill="#cccccc">  </tspan><tspan fill="#5cb85c">.__.  \/  ._.--_.  \/ .-..\/  ..- _.  \/ .__.  \/  ._.--_.  \/ .__</tspan></text>
+<text x="6" y="66" font-family="'Courier New',Consolas,monospace" font-size="12" xml:space="preserve"><tspan fill="#cccccc">  </tspan><tspan fill="#4a8c3f">.   \/    _..\/-     ...--..       \/  ._. .  \/ _..\/-     ..--. </tspan></text>
+</svg>
+<div class="nav" id="nav"></div>
+<script>
+var D={"characters": {"1": {"name": "MOSHE", "desc": "On a mountain in a meeting with G_d.\n\n[Character coming soon.\n Don't leave a message at the beep.]", "disabled": true}, "2": {"name": "MIRYAM", "desc": "She watched the sea split.\nShe watched the army drown.\nShe reached into her bag.\nShe had been waiting her whole life\nto reach into that bag.\n\nOpponent: Forgetting. 2 million people.\n          One tambourine.", "nerve": 75, "manna": 80, "water": 85, "camp": 90, "signal": 60, "gold": 50, "special": "TAMBOURINE TIME", "special_desc": "Start the song. +30 camp. Restore 2 who strayed.", "campaign": "camp"}, "3": {"name": "AARON", "desc": "The calf is not a god.\nIt is a temporary transitional\nspiritual placeholder pending\nMoses's return.\nIt's in beta.\n\nOpponent: The crowd. They gave the gold\n          before he finished the sentence.", "nerve": 60, "manna": 90, "water": 90, "camp": 75, "signal": 50, "gold": 70, "special": "DELAY", "special_desc": "Stall the crowd. Subtract 3 days from the clock. Add detail to the left ear.", "campaign": "camp"}}, "camp_members": {"Datan": {"personality": "Professional skeptic. Egypt > Desert. Open to opportunities not involving manna.", "loyalty": 30}, "Aviram": {"personality": "Agrees with Datan. Always agrees with Datan. Has never had an original opinion. This is documented.", "loyalty": 35}, "Nachshon": {"personality": "Walked into the sea before it split. Will walk into anything before it splits. Nobody asks Nachshon to do things. Nachshon does them.", "loyalty": 95}, "Betzalel": {"personality": "Can build anything. Has built everything. Currently waiting for someone to tell him what to build next. He already knows what it is.", "loyalty": 85}, "Calev": {"personality": "Saw the same land everyone else saw. Reached a different conclusion. Will not stop reaching different conclusions.", "loyalty": 90}, "Yehoshua": {"personality": "Moses's student. Does not leave the tent. When he does leave the tent, things get done.", "loyalty": 92}, "Eldad": {"personality": "Prophesies in the camp without permission. The prophecy was apparently very good.", "loyalty": 70}, "Medad": {"personality": "Also prophesies without permission. Always with Eldad. They are a package deal.", "loyalty": 70}, "Serach": {"personality": "Remembers things nobody else remembers. Has been remembering things for a very long time.", "loyalty": 80}, "Devorah": {"personality": "Judges things. Mostly situations. Occasionally people. Always correctly.", "loyalty": 82}, "Pinchas": {"personality": "Zealous. About everything. If Pinchas makes tea he is zealous about the tea.", "loyalty": 75}, "Dotan": {"personality": "Not to be confused with Datan. Dotan is fine. Datan has filed a complaint about the confusion.", "loyalty": 65}, "Yocheved": {"personality": "Put a baby in a basket in a river and it worked out. Has trusted the process longer than anyone.", "loyalty": 88}, "Tziporah": {"personality": "Married Moses. Understands what it means to wait for Moses. Has opinions about the mountain.", "loyalty": 78}, "Aholiav": {"personality": "Betzalel's partner. Less famous. Equally skilled. Does not mind. This is suspicious.", "loyalty": 80}}, "camp_names": ["Datan", "Aviram", "Nachshon", "Betzalel", "Calev", "Yehoshua", "Eldad", "Medad", "Serach", "Devorah", "Pinchas", "Dotan", "Yocheved", "Tziporah", "Aholiav"], "events_act1": [{"title": "NO WATER", "ref": "Exodus 17:1", "text": "There is no water to drink.\nThe camp is thirsty. Someone says it is your fault.\nDatan has filed a formal complaint. It is not his first.", "choices": [["Strike the rock. Trust the water will come.", {"nerve": 5, "water": 30, "signal": 5}], ["Tell them to wait. You are working on it.", {"nerve": -5, "water": 10, "stray": 1}], ["Ask Datan: where was your faith when the sea split?", {"nerve": 10, "camp": -5}]]}, {"title": "THE CUCUMBERS OF EGYPT", "ref": "Numbers 11:4-6", "text": "We remember the fish. The cucumbers. The melons.\nWe remember them as free. They were not free.\nWe were slaves. But the cucumbers were excellent.", "choices": [["Manna is enough. The miracle is the point.", {"nerve": 10, "camp": 5}], ["Give them quail. Give them what they want.", {"nerve": -10, "manna": 20, "stray": 1}], ["Ask: were the cucumbers worth the bricks?", {"nerve": 5, "signal": 5, "camp": -3}]]}, {"title": "MOSES IS LATE", "ref": "Exodus 32:1", "text": "Moses is taking too long.\nThe crowd is gathering. Aaron looks nervous.\nThe gold is starting to move. This is fine.", "choices": [["Hold. He said 40 days. Count the days.", {"nerve": 10, "camp": 5, "stray": -1}], ["Make a small compromise. Keep the peace.", {"nerve": -20, "stray": 2, "camp": -10}], ["Find who is still holding. Gather them now.", {"nerve": 15, "camp": 10, "stray": -1}]], "critical": true}, {"title": "EGYPT NOSTALGIA", "ref": "Exodus 14:12", "text": "It was better for us to serve Egypt\nthan to die in this desert.\nAviram agrees. Aviram always agrees.", "choices": [["The sea split for you. You were there.", {"nerve": 10, "camp": 5}], ["Agree partially. Redirect the energy.", {"nerve": -5, "stray": 1}], ["Ask Aviram: is that your opinion or Datan's?", {"nerve": 5, "camp": 3}]]}, {"title": "THE HALF-SHEKEL", "ref": "Exodus 30:15", "text": "Every person gives exactly half a shekel.\nNot more. Not less.\nThe wealthy are furious. This is correct.", "choices": [["Give your half-shekel. Equal to everyone.", {"nerve": 20, "camp": 15, "signal": 10}], ["Give more. You want to stand out.", {"nerve": -10, "camp": -5, "stray": 1}], ["Tell the wealthy: you give the same as me.", {"nerve": 10, "camp": 20}]]}, {"title": "THE GOLD IS MOVING", "ref": "Exodus 32:2-3", "text": "Aaron asked for the gold to buy time.\nThe gold arrived before he finished the sentence.\nHe was going to add conditions. He did not get to the conditions.", "choices": [["Do not give your earring.", {"nerve": 15, "camp": 5, "gold": -5, "stray": -1}], ["Give it. Just this once.", {"nerve": -20, "gold": -20, "stray": 2, "camp": -15}], ["Warn others quietly. Do not make a scene.", {"nerve": 5, "camp": 5, "gold": -10}]], "critical": true}, {"title": "AMALEK ATTACKS", "ref": "Exodus 17:8", "text": "Amalek came from behind.\nThey attacked the stragglers at the rear.\nNachshon has opinions about this. He is sharing them at speed.", "choices": [["Fight. Hold the line.", {"nerve": 5, "water": -10, "manna": -10, "camp": 10}], ["Hold the arms that are falling.", {"nerve": 15, "camp": 15, "stray": -1}], ["Protect the rear. That is where the vulnerable are.", {"nerve": 10, "camp": 10, "manna": -5}]]}, {"title": "KORACH SPEAKS", "ref": "Numbers 16:3", "text": "You take too much upon yourselves!\nThe whole congregation is holy!\nWhy do you raise yourself above us?\nKorach is not wrong about everything. This is worse than if he were.", "choices": [["Do not engage. Let the ground decide.", {"nerve": 5, "camp": 5, "stray": -1}], ["Debate him. You can win this.", {"nerve": -10, "camp": -5, "stray": 1}], ["Acknowledge what is true. Reject the rest.", {"nerve": 15, "camp": 10}]], "critical": true}, {"title": "MANNA FATIGUE", "ref": "Numbers 21:5", "text": "Manna again.\nThey are bored of miracles.\nThis will be discussed for centuries.", "choices": [["Boredom with a miracle is also a miracle.", {"nerve": 15, "camp": 5, "stray": -1}], ["Look for something better tomorrow.", {"nerve": -5, "stray": 1}], ["Eat the manna. Say nothing. It tastes different to everyone.", {"manna": 10, "nerve": 5}]]}, {"title": "MIRIAM LOOKED AT 2 MILLION TRAUMATIZED FORMER SLAVES", "ref": "Exodus 15:20", "text": "The sea split. The army drowned.\nEveryone is in shock.\nMiriam has reached into her bag.\n\nAnd thought: tambourine time.", "choices": [["Join the song. You know the words.", {"nerve": 20, "camp": 20, "signal": 10}], ["Watch. You are still processing the sea.", {"nerve": 5, "camp": 5}], ["Ask Miriam if this is the right moment.", null]], "question": {"text": "Miriam looks at you. She says: is the army still behind us?", "choices": [["No.", {"nerve": 15, "camp": 15}], ["No, they drowned.", {"nerve": 25, "camp": 25, "signal": 15}], ["...no.", {"nerve": 20, "camp": 20}]]}}, {"title": "THE SPIES RETURN", "ref": "Numbers 13:32", "text": "The land devours its inhabitants!\nWe were like grasshoppers in our own eyes!\nCalev is trying to say something. Nobody is listening to Calev.", "choices": [["Calev is right. The land is good.", {"nerve": 15, "camp": 10, "stray": -1}], ["The spies saw what they saw.", {"nerve": -20, "camp": -15, "stray": 2}], ["Listen to Calev. Then listen to the ten. Then decide.", {"nerve": 5, "camp": 5, "signal": 5}]], "critical": true}, {"title": "ELDAD AND MEDAD PROPHESY", "ref": "Numbers 11:26", "text": "Eldad and Medad stayed in the camp and prophesied.\nThey were not supposed to be in the camp.\nThe prophecy was apparently very good.", "choices": [["Let them prophesy. The spirit goes where it goes.", {"nerve": 15, "camp": 10, "signal": 10}], ["Stop them. There is a process for this.", {"nerve": -10, "camp": -5}], ["Ask what they said.", null]], "question": {"text": "Eldad looks at you. He says: do you want the short version or the long version?", "choices": [["Short.", {"nerve": 10, "camp": 10}], ["Long.", {"nerve": 15, "signal": 15}], ["Are you supposed to be here?", {"nerve": 5, "camp": 5}]]}}, {"title": "NACHSHON HAS A PLAN", "ref": "Exodus 14:22", "text": "Nachshon is proposing something.\nIt involves going first before the conditions are right.\nThis has worked before. Once.", "choices": [["Follow Nachshon. It worked before.", {"nerve": 20, "camp": 15, "stray": -1}], ["Wait for better conditions.", {"nerve": -5, "camp": -5}], ["Ask Nachshon why.", null]], "question": {"text": "Nachshon says: if not now, when?", "choices": [["When the conditions are better.", {"nerve": -5, "camp": -5}], ["...when indeed.", {"nerve": 20, "camp": 20}], ["That's not an answer.", {"nerve": 10, "camp": 5}]]}}, {"title": "BETZALEL NEEDS MATERIALS", "ref": "Exodus 35:30", "text": "Betzalel approaches. He has a list.\nThe list is very specific.\nHe knows exactly what is needed.\nHe always knows exactly what is needed.", "choices": [["Give Betzalel the materials. He knows.", {"signal": 20, "camp": 10, "gold": -10}], ["Ask Betzalel to wait. Not now.", {"signal": -10, "camp": -5}], ["Ask Betzalel what he is building.", null]], "question": {"text": "Betzalel says: the same thing I am always building. A place for the presence to rest.", "choices": [["That's enough information.", {"signal": 15, "camp": 10}], ["How long will it take?", {"signal": 10}], ["Do you need help?", {"signal": 20, "camp": 15, "gold": -5}]]}}, {"title": "SHABBAT", "ref": "Exodus 16:27", "text": "The seventh day.\nSome people went to gather manna anyway.\nThey found nothing.\nThey are blaming you for the nothing.", "choices": [["Set the boundary again. Clearly. Kindly.", {"nerve": 10, "camp": 5, "signal": 10}], ["Give them some of yours. Keep the peace.", {"nerve": -5, "manna": -20}], ["Let them be hungry. The Shabbat teaches.", {"nerve": 5, "camp": -5, "signal": 15}]]}, {"title": "WHOSE PEOPLE", "ref": "Exodus 32:7", "text": "God says to Moses: go down, for YOUR people have corrupted themselves.\nLater Moses will say to God: why does YOUR anger burn against YOUR people?\nNeither of them wants custody right now.\nThis is the most uncomfortable game of hot potato in history.", "choices": [["They are everyone's people. Claim them.", {"nerve": 15, "camp": 15, "stray": -1}], ["They are God's people. Remind Him.", {"nerve": 20, "signal": 10}], ["They are their own people. That is the problem and the point.", {"nerve": 10, "camp": 10, "signal": 5}]]}], "events_act2": [{"title": "THE TABLETS ARE BROKEN", "ref": "Exodus 32:19", "text": "They are in pieces at the foot of the mountain.\nThe calf is still standing.\nThe letters flew off the stone.\nSomeone will have to carve new ones. By hand this time.", "choices": [["Mourn what was broken. Do not pretend it is fine.", {"nerve": 10, "repair": 10, "signal": 5, "manna": -10}], ["Gather the pieces. The broken tablets go in the Ark too.", {"nerve": 15, "repair": 15, "signal": 10, "water": -10, "camp": -5}], ["The breaking was honest. Hold that.", {"nerve": 8, "repair": 12, "camp": -8}]], "critical": true}, {"title": "MOSHE INTERCEDES", "ref": "Exodus 32:32", "text": "If you will forgive their sin —\nbut if not, erase me from your book.\nMoses put himself between the people and the consequence.\nThis is mesirat nefesh. This is the whole game.", "choices": [["Stand with him. Add your presence. You will not eat today.", {"nerve": 15, "repair": 15, "camp": 5, "manna": -15, "water": -10}], ["Go find those who strayed. Bring them back. It will cost you.", {"repair": 10, "restore": 2, "nerve": -5, "manna": -10}], ["Watch. You cannot match this. But you can witness it.", {"nerve": 8, "repair": 5, "signal": 10}]]}, {"title": "THE 13 ATTRIBUTES OF MERCY", "ref": "Exodus 34:6", "text": "Adonai, Adonai —\nCompassionate and gracious.\nSlow to anger.\nAbundant in kindness and truth.\nThe mountain is speaking.\nThis was revealed AFTER the lowest point. This was not a coincidence.", "choices": [["Listen. All 13. Do not move. Do not eat. Do not leave.", {"nerve": 20, "repair": 20, "signal": 15, "manna": -15, "water": -10, "camp": -5}], ["Repeat them aloud so others can hear. The camp needs this more than you do.", {"repair": 15, "restore": 2, "camp": 10, "nerve": 5, "manna": -10}], ["Weep. You did not think you would hear this. You are not functional today.", {"nerve": 12, "repair": 12, "manna": -20}]], "critical": true}, {"title": "THE CAMP MOURNS", "ref": "Exodus 33:4", "text": "No one put on their ornaments.\nThis is the first quiet the camp has had in weeks.\nEven Datan took off his ornaments.\nSomething is shifting.", "choices": [["Go to them. No rebuke. Just presence. Skip gathering today.", {"repair": 10, "restore": 1, "camp": 10, "manna": -10}], ["Tell them what you heard on the mountain. It will take all day.", {"repair": 10, "signal": 10, "restore": 1, "water": -10}], ["Let them come on their own terms. Gather manna. Someone has to.", {"manna": 10, "repair": 5}]]}, {"title": "THE PRESENCE WITHDRAWS", "ref": "Exodus 33:3", "text": "I will not go in your midst.\nFor you are a stiff-necked people.\nLest I consume you on the way.\n\nAn angel will lead instead.\nWhen the people heard THIS, they mourned.\nNot the punishment. Not the death. This.\nThe leaving is worse than any consequence.", "choices": [["Fast. Give up food and water. Show the mourning is real.", {"nerve": 10, "repair": 15, "manna": -25, "water": -20}], ["Remove your ornaments. Give the gold to Betzalel instead.", {"repair": 10, "gold": 15, "signal": 10, "camp": -5}], ["Sit at the edge of camp. You cannot be in the middle of this.", {"nerve": 5, "repair": 8, "camp": -10}]], "critical": true}, {"title": "SHOW ME YOUR GLORY", "ref": "Exodus 33:18", "text": "Moses said: Please, show me your glory.\nGod said: I will make all my goodness pass before you.\nThis is not the same thing.\nMoses stood in the cleft of the rock.\nGod's hand covered him until it passed.\n\nYou cannot see the face. Only the after.", "choices": [["Ask for the same thing. Show me. Risk everything.", {"nerve": 18, "repair": 15, "signal": 12, "water": -15, "manna": -10, "stray": 1}], ["Stand in the cleft. Wait. You will miss gathering today and tomorrow.", {"repair": 20, "signal": 15, "manna": -20, "water": -15}], ["You cannot ask. Just witness. Stay in camp and tend the fire.", {"nerve": 8, "camp": 10, "manna": 5}]], "critical": true}, {"title": "MOSES CARVES THE STONE", "ref": "Exodus 34:1", "text": "Carve two stone tablets. Like the first ones.\nBring them up the mountain tomorrow morning.\nMoses is carving. This is new.\nThe first ones came pre-made. These require hands.", "choices": [["Help gather the stone. The work is the prayer. You will not gather manna.", {"signal": 15, "repair": 10, "camp": 5, "manna": -15}], ["Watch Moses carve. Witness it. Forget to eat.", {"signal": 10, "repair": 8, "manna": -10}], ["Ask Betzalel if the stone is the right kind.", null]], "question": {"text": "Betzalel says: it is not about the stone.", "choices": [["What is it about?", {"signal": 12, "repair": 12, "manna": -5}], ["Then why are we asking about the stone?", {"signal": 10, "repair": 10}], ["...right.", {"signal": 15, "repair": 15, "manna": -10}]]}}, {"title": "THE GOLD DECISION", "ref": "Exodus 35:22", "text": "The same gold that built the calf can build the Mishkan.\nSame earrings. Same bracelets. Same material.\nBetzalel is waiting.\nThe calf is also waiting.\nOne resource. Two uses.", "choices": [["Give gold to Betzalel. Build the dwelling place.", {"gold": -15, "signal": 20, "repair": 10}], ["Keep the gold. You might need it.", {"gold": 5, "nerve": -10, "camp": -5}], ["Ask the camp to give. Giving costs everyone the same.", {"gold": -10, "camp": 15, "signal": 15, "stray": -1}]]}, {"title": "DRINKING THE CALF", "ref": "Exodus 32:20", "text": "Moses ground the calf to powder.\nScattered it on water.\nMade the people drink it.\nThis is not punishment. Or not only punishment.\nIt is a test. A sotah test.\nThe truth is in the water now.", "choices": [["Drink first. Show them it is safe if you are clean.", {"nerve": 15, "repair": 10, "camp": 10, "water": -15}], ["Help distribute the water. Someone has to watch them drink.", {"camp": 5, "repair": 8, "restore": 1, "manna": -10}], ["Ask: who is afraid to drink?", {"nerve": 8, "repair": 12, "stray": 1}]]}, {"title": "WHOEVER IS FOR THE LORD", "ref": "Exodus 32:26", "text": "Moses stands at the gate of the camp.\nWhoever is for the Lord, come to me.\nThe Levites came.\nThis is the line. There is no middle ground here.\nThere was always a middle ground before.\nNot now.", "choices": [["Go to him. You know which side.", {"nerve": 15, "camp": -10, "repair": 15, "stray": -1}], ["Bring others with you. Do not go alone.", {"camp": 5, "repair": 10, "restore": 1, "manna": -10}], ["Hesitate. Just for a moment. You are human.", {"nerve": -5, "repair": 5, "camp": -5}]], "critical": true}, {"title": "CALEV AND YEHOSHUA WERE ALWAYS THERE", "ref": "Numbers 14:6", "text": "They tore their clothes when the bad report spread.\nThe land is very good, they said.\nDo not fear the people of the land.\nThey have always been here.\nThey were never going to not be here.", "choices": [["Stand with them. Write their names down. Skip manna.", {"nerve": 12, "camp": 10, "repair": 8, "manna": -10}], ["Thank them. Keep gathering. Camp still needs to eat.", {"nerve": 5, "camp": 5, "manna": 5}], ["Ask them how they kept the faith.", null]], "question": {"text": "Calev says: we saw the same things everyone else saw.", "choices": [["And?", {"nerve": 12, "repair": 10, "manna": -5}], ["Then why did you respond differently?", {"nerve": 15, "repair": 12, "manna": -10}], ["...", {"nerve": 8, "repair": 8}]]}}, {"title": "THE TENT OF MEETING", "ref": "Exodus 33:7", "text": "A place outside the camp.\nFor anyone who seeks.\nThe pillar of cloud comes down when Moses enters.\nThe people stand at their tent doors and watch.\nAnyone can go. Most people watch.", "choices": [["Go to the Tent. Seek. Leave camp unattended.", {"nerve": 12, "signal": 10, "repair": 10, "camp": -8}], ["Help others find the Tent. Stay outside yourself.", {"camp": 12, "repair": 10, "restore": 1, "nerve": -3}], ["Stand at your door and watch. Someone has to hold camp.", {"nerve": 5, "signal": 5, "manna": 5}]]}, {"title": "THE LEFT EAR", "ref": "Exodus 32:4 (midrash)", "text": "There is a midrash that Aaron kept adding details to the calf.\nAnother curve on the left ear.\nAnother adjustment to the hoof.\nHe was stalling.\nEvery detail was a delay.\nAaron invented scope creep to save his people.", "choices": [["Help Aaron stall. You are also good at unnecessary details.", {"nerve": -5, "camp": 10, "gold": -5}], ["Tell Aaron to stop. The stalling is becoming the thing.", {"nerve": 10, "camp": -10, "repair": 5}], ["Ask Aaron: do you know what you are building?", {"nerve": 5, "repair": 8, "camp": 3}]]}, {"title": "REMEMBER THE FOOD IN EGYPT", "ref": "Numbers 11:5", "text": "Someone's grandmother is talking about Egypt again.\nThe fish was free. The bread was thick.\nThe leeks. The onions. The garlic.\nShe is not wrong about the garlic.\nShe is wrong about the free part.\nShe will not stop talking about the garlic.", "choices": [["Let her talk. Grief looks like nostalgia sometimes.", {"camp": 5, "nerve": -3, "manna": -5}], ["Manna can taste like anything. It tastes like what you need.", {"nerve": 10, "signal": 5, "camp": -3}], ["Ask her: was the garlic worth the bricks?", {"nerve": 8, "camp": 5, "stray": -1}]]}, {"title": "YOM KIPPUR", "ref": "Exodus 34:29", "text": "Moses came down the mountain.\nThe second time.\nHe was carrying the second tablets.\nHis face was shining and he did not know it.\nThis is the day.\nThis will become the day of return.\nEvery year. For all of it.", "choices": [["Run to meet him. Leave everything.", {"nerve": 15, "repair": 20, "signal": 15, "manna": -15, "water": -10}], ["Gather the camp first. He should see everyone standing.", {"camp": 15, "repair": 15, "restore": 2, "manna": -10}], ["Wait at the edge. Watch his face. Remember it.", {"nerve": 10, "repair": 12, "signal": 10}]], "critical": true}], "manna_events": [{"text": "Morning. The manna is on the ground. Gather or do something else?", "choices": [["Gather. One day's worth. Trust tomorrow.", {"manna": 8, "water": 3}], ["Skip gathering. Spend the morning in camp instead.", {"manna": -3, "camp": 5}], ["Gather double. Just in case.", {"manna": 3, "nerve": -8}]]}, {"text": "Morning. The manna is there. It is always there.\nSome people did not go out today.", "choices": [["Gather yours. Bring some for those who didn't go.", {"manna": 5, "camp": 5, "water": -3}], ["Gather yours only. You are not responsible for everyone.", {"manna": 8}], ["Don't gather. See what it feels like to trust completely.", {"manna": -8, "nerve": 10}]]}, {"text": "Morning. Manna. The dew is heavier today.\nThere might be extra. Or it might be a test.", "choices": [["Gather the usual amount. The amount is the point.", {"manna": 8, "nerve": 5}], ["Gather extra. Share it.", {"manna": 5, "camp": 8, "nerve": -3}], ["Gather extra. Keep it.", {"manna": 3, "nerve": -10}]]}, {"text": "Morning. Manna.\nDatan says it was better in Egypt.\nThe manna does not care what Datan says.", "choices": [["Gather and eat. It tastes like what you need.", {"manna": 8, "nerve": 3}], ["Gather and bring some to Datan. He won't thank you.", {"manna": 3, "camp": 5}], ["Skip gathering. Sit with Datan. Listen to the complaint.", {"manna": -5, "camp": 8, "nerve": -3}]]}], "manna_crisis": [{"title": "MANNA TRUST HAS COLLAPSED", "text": "Nobody went out to gather today.\nNot because there is no manna.\nBecause they stopped believing it would be there.\nIt is there. They did not go look.", "choices": [["Go gather alone. Bring it back. Show them.", {"manna": 15, "nerve": 5, "camp": -3}], ["Announce: the manna is still there. Go see for yourselves.", {"nerve": 8, "manna": 5}], ["Let the hunger teach. It taught before.", {"nerve": 3, "stray": 1, "manna": -5}]]}, {"title": "SOMEONE IS HOARDING", "text": "Worms. In someone's tent.\nThey kept yesterday's manna.\nThe smell is unmistakable.\nEveryone knows who it is. Nobody is saying.", "choices": [["Address it publicly. Hoarding breaks the system.", {"nerve": 10, "camp": -5, "manna": 5}], ["Address it privately. Shame does not teach.", {"camp": 5, "manna": 3, "nerve": 3}], ["Say nothing. Let the worms teach.", {"nerve": 5, "camp": -3}]]}], "water_crisis": [{"title": "THE WELL IS DRY", "text": "Miriam's well gave water for the journey.\nToday it did not.\nThe infrastructure failed.\nDatan is composing a strongly worded letter to the infrastructure.", "choices": [["Strike the rock again. Trust the water.", {"water": 20, "nerve": 5, "signal": -5}], ["Ration what you have. Discipline before miracles.", {"water": 8, "camp": -5}], ["Pray. Just pray. The rock is God's department.", {"water": 10, "nerve": 10, "manna": -5}]]}, {"title": "THIRST", "text": "Three days without water.\nThe camp is not complaining.\nThis is worse than complaining.\nWhen they stop complaining, they are making plans.", "choices": [["Find water. Drop everything else. Today is about water.", {"water": 15, "manna": -10, "camp": 5}], ["Address the silence. Ask what they are planning.", {"camp": 3, "nerve": -5, "stray": 1}], ["Tell them: God tested with thirst before. We survived then.", {"nerve": 8, "water": 5, "stray": -1}]]}], "rock_good": ["Rock: water's fine. You're fine. Drink.", "Rock: still here. Still wet. You're welcome.", "Rock: another day, another strike. We have a system.", "Rock: I've been doing this longer than you've been free. Drink.", "Rock: you hit. I produce. We don't need to talk about it.", "Rock: the well is fine. I am fine. Everything is fine. Drink.", "Rock: I notice nobody thanks the rock. This is noted.", "Rock: water. As requested. As always. You're welcome."], "rock_shaky": ["Rock: you're hitting softer today. I can tell.", "Rock: the water came out. But you hesitated. I felt that.", "Rock: do you believe I have water or not? Commit.", "Rock: you used to hit with conviction. What happened.", "Rock: I'm a rock. I don't have feelings. But if I did.", "Rock: Datan hit me today. Datan. Think about that.", "Rock: the water is getting thinner. That's not me. That's you."], "rock_bad": ["Rock: you hit me without enough nerve. Kindly grow a pair and try again later.", "Rock: I gave Pharaoh's river blood. You think I can't hold water? The problem is not me.", "Rock: you want water? Show up like you mean it.", "Rock: ...are you even trying?", "Rock: I have been a rock since before Egypt. I will be a rock after you. Hit me like you mean it.", "Rock: the tree says hello. The tree thinks I should be more supportive. The tree has boundary issues.", "Rock: Moshe hit me once and got a nation's worth of water. You hit me and I barely dripped. Think about that."], "rock_miriam": ["Rock: ...you don't even have to hit me. It just comes. How do you do that?", "Rock: I don't understand it either. You show up, water shows up. No hitting required.", "Rock: the well follows you. I want you to know that I find this unsettling.", "Rock: I have never said this to anyone. The water likes you."], "ending_texts": {"FULL_REPAIR": ["The second tablets arrived. The camp was there.\nThe broken pieces ride in the Ark alongside the whole ones.\nThe scar travels with the covenant. This is the point.", "Moses came down the mountain. The tablets were intact.\nThe camp was intact.\nAaron looked very relieved.\nThe left ear of the calf is very detailed.", "You made it. The second tablets are not a replacement.\nThey are a collaboration. God wrote the first ones alone.\nThese ones have human hands in them.\nThese ones have history."], "PARTIAL_REPAIR": ["Most of the camp received the tablets.\nMost is a complicated word.\nThere are several opinions about most.\nPeople will discuss this for centuries.\nAnd people wonder why Jews answer every question with another question.", "Close enough.\nThat's not in the Torah anywhere.\nBut here you are. Close enough.\nDatan is writing this down.", "The tablets arrived. Some people were still at the calf.\nNachshon tried to go get them.\nNobody asked Nachshon to do that. He went anyway."], "TABLETS_NOBODY_HOME": ["Moses came down with the tablets.\nThe camp was dancing.\nHe stood there holding them for a while.\nTablets: delivered. Camp: unavailable.\nSomeone will find them eventually.\nProbably Betzalel. Betzalel finds everything.", "The signal was perfect.\nNobody was there to receive it.\nThis has happened before.\nIt will happen again.\nBetzalel will store them somewhere safe."], "CAMP_HOLDS_NO_SIGNAL": ["Everyone stayed. Nobody strayed.\nThe tablets never came.\nEldad and Medad prophesied something encouraging.\nNobody knows what it meant.\nIt was encouraging though.", "You held everyone together for 40 days.\nThat's not nothing.\nThe tablets will come eventually. Probably.\nNachshon is already walking toward the mountain just in case."], "MOSHE_ALONE": ["Moses received everything. All of it. Perfect.\nHe came down the mountain.\nCalev and Yehoshua were there.\nThey always show up. Bless them.", "The signal was complete.\nMoses came down. He looked around.\nHe went back up.\nHe had some follow-up questions for God."], "CALF_STANDS": ["The calf is still standing.\nThis is not the ending anyone wanted.\nDatan thinks it went pretty well actually.\nDatan is wrong.", "You are in the Torah now.\nNot in the good section.\nSomewhere on a mountain Moses is receiving\nvery detailed instructions for a washbasin.\nThe timing on this is unfortunate."]}, "ending_titles": {"FULL_REPAIR": "THE SECOND TABLETS ARE BETTER THAN THE FIRST", "PARTIAL_REPAIR": "CLOSE ENOUGH (THIS IS NOT IN THE TORAH)", "TABLETS_NOBODY_HOME": "TABLETS ARRIVE. NOBODY HOME.", "CAMP_HOLDS_NO_SIGNAL": "EVERYONE STAYED. THE TABLETS DIDN'T.", "MOSHE_ALONE": "PERFECT SIGNAL. EMPTY CAMP.", "CALF_STANDS": "YOU ARE IN THE TORAH. NOT THE GOOD SECTION."}};
+var introIds=['title','intro1','intro2','intro3'];
+var S={phase:'intro',idx:0};
+
+function $(id){return document.getElementById(id)}
+function rand(a,b){return Math.floor(Math.random()*(b-a+1))+a}
+function pick(arr){return arr[Math.floor(Math.random()*arr.length)]}
+function shuffle(a){for(var i=a.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var t=a[i];a[i]=a[j];a[j]=t}return a}
+function clamp(v){return Math.max(0,Math.min(100,v))}
+function dc(o){return JSON.parse(JSON.stringify(o))}
+
+function hideAll(){
+  introIds.forEach(function(id){var e=$(id);if(e)e.classList.remove('vis')});
+  $('game').classList.remove('vis');
+  document.querySelectorAll('.sky,.grs').forEach(function(e){e.style.display='none'});
+}
+
+function showSvg(id){hideAll();$(id).classList.add('vis');$('nav').innerHTML='';window.scrollTo(0,0)}
+
+function showGame(html,btns,sun){
+  hideAll();
+  // Show sky header
+  var skyId=sun?'skyS':'skyN';
+  $(skyId).style.display='block';
+  $('game').classList.add('vis');
+  $('game').innerHTML=html;
+  // Show grass
+  $('grass').style.display='block';
+  // Nav buttons
+  S.btns=btns;
+  var h='';btns.forEach(function(b,i){
+    var c='btn'+(b.c?' '+b.c:'');
+    h+='<div class="'+c+'" onclick="'+b.fn.replace(/"/g,'&quot;')+'">'+b.label+'</div>';
+  });
+  $('nav').innerHTML=h;
+  window.scrollTo(0,0);
+}
+
+// ═══ KEYBOARD ═══
+document.addEventListener('keydown',function(e){
+  var k=e.key;
+  if(S.phase==='intro'){
+    if(k==='Enter'){
+      if(S.idx<introIds.length-1){S.idx++;doIntro();}
+      else doCharSelect();
+    }else if(k==='b'||k==='B'){if(S.idx>0){S.idx--;doIntro();}}
+    return;
+  }
+  // Number keys for choices
+  if(k>='1'&&k<='9'&&S.btns){
+    var idx=parseInt(k)-1;
+    var choices=S.btns.filter(function(b){return b.c&&b.c.indexOf('choice')>=0});
+    if(idx<choices.length){eval(choices[idx].fn);}
+  }
+  if(k==='s'||k==='S'){
+    var sp=S.btns?S.btns.filter(function(b){return b.c&&b.c.indexOf('special')>=0}):[];
+    if(sp.length)eval(sp[0].fn);
+  }
+  if(k==='c'||k==='C'){
+    var cb=S.btns?S.btns.filter(function(b){return b.label==='Camp'}):[];
+    if(cb.length)eval(cb[0].fn);
+  }
+  if(k==='b'||k==='B'){
+    var bb=S.btns?S.btns.filter(function(b){return b.label==='Back'}):[];
+    if(bb.length)eval(bb[0].fn);
+  }
+  if(k==='Enter'){
+    var cont=S.btns?S.btns.filter(function(b){return b.label==='Continue'||b.label==='Begin'||b.label==='Next'||b.label==='Play'}):[];
+    if(cont.length)eval(cont[0].fn);
+  }
+});
+
+// ═══ INTRO SCREENS ═══
+function doIntro(){
+  S.phase='intro';
+  showSvg(introIds[S.idx]);
+  var btns=[];
+  if(S.idx===0)btns=[{label:'Begin',fn:'S.idx++;doIntro()'}];
+  else{
+    btns=[{label:'Back',fn:'S.idx--;doIntro()'}];
+    if(S.idx<introIds.length-1)btns.push({label:'Next',fn:'S.idx++;doIntro()'});
+    else btns.push({label:'Play',fn:'doCharSelect()'});
+  }
+  var h='';btns.forEach(function(b){
+    h+='<div class="btn" onclick="'+b.fn+'">'+b.label+'</div>';
+  });
+  $('nav').innerHTML=h;
+}
+
+// ═══ BAR ═══
+function bar(val,label){
+  val=clamp(val);var w=10,f=Math.round((val/100)*w);
+  var b='';for(var i=0;i<w;i++)b+=i<f?'█':'░';
+  var cls=val>50?'f':val>25?'l':'e';
+  return '<span class="bar">'+label+' [<span class="'+cls+'">'+b+'</span>] '+val+'</span>';
+}
+function waterBar(st){
+  if(st.char_name==='MIRYAM')return '<span class="bar">WATER [<span class="c">  well ok  </span>]</span>';
+  return bar(st.water,'WATER');
+}
+
+// ═══ STATUS ═══
+function statusHtml(st){
+  var act=st.calf_happened?'<span class="r">ACT II: THE RETURN</span>':'<span class="c">ACT I: THE WAIT</span>';
+  var h='<div class="hdr"><span class="y">'+st.name+'</span> │ '+act+' │ Day '+st.day+'/'+st.total+'</div>';
+  h+='<div class="stat-row">'+bar(st.nerve,'NERVE')+'&nbsp;&nbsp;'+bar(st.manna,'MANNA')+'</div>';
+  h+='<div class="stat-row">'+bar(st.camp,'CAMP')+'&nbsp;&nbsp;'+bar(st.signal,'SIGNAL')+'</div>';
+  h+='<div class="stat-row">'+bar(st.gold,'GOLD')+'&nbsp;&nbsp;'+waterBar(st)+'</div>';
+  if(st.calf_happened)h+='<div class="stat-row">'+bar(st.repair,'REPAIR')+'</div>';
+  h+='<div class="stat-row sml">Standing: '+st.standing.length+' │ Strayed: '+st.strayed.length+'</div>';
+  if(st.strayed.length>0)h+='<div class="stat-row"><span class="r">At the calf: '+st.strayed.slice(-4).join(', ')+'</span></div>';
+  if(st.presence_withdrawn)h+='<div class="stat-row"><span class="y">⚠ PRESENCE WITHDRAWN. Gains halved.</span></div>';
+  return h;
+}
+
+// ═══ CHARACTER SELECT ═══
+function doCharSelect(){
+  S.phase='charselect';
+  var h='<div class="card"><div class="t">CHOOSE YOUR CHARACTER</div><div class="d">Everyone begins with the same half-shekel.</div></div>';
+  for(var k in D.characters){
+    var c=D.characters[k];
+    if(c.disabled){
+      h+='<div class="btn char disabled">['+k+'] '+c.name+'<br><span class="d">'+c.desc.replace(/\n/g,'<br>')+'</span></div>';
+    }else{
+      h+='<div class="btn char" onclick="startGame(\''+k+'\')">['+k+'] <span class="g">'+c.name+'</span><br>'+c.desc.replace(/\n/g,'<br>')+'<br><span class="c">SPECIAL: '+c.special+' — '+c.special_desc+'</span></div>';
+    }
+  }
+  showGame(h,[{label:'Back',fn:'S.idx=introIds.length-1;doIntro()'}],false);
+}
+
+// ═══ NEW STATE ═══
+function newState(ck){
+  var c=D.characters[ck];
+  return {name:c.name,nerve:c.nerve,manna:c.manna,water:c.water,camp:c.camp,
+    signal:c.signal,gold:c.gold,repair:0,day:0,total:40,
+    standing:D.camp_names.slice(),strayed:[],special:c.special,
+    special_desc:c.special_desc,special_used:false,char_name:c.name,
+    campaign:c.campaign,calf_happened:false,presence_withdrawn:false,
+    journey_log:[],lowest_nerve:c.nerve,max_strayed:0,
+    manna_crises:0,water_crises:0};
+}
+
+// ═══ APPLY OUTCOME ═══
+function applyOutcome(st,out){
+  if(!out)return '';var msgs=[];
+  var stats=['nerve','manna','water','camp','signal','repair','gold'];
+  for(var k in out){var v=out[k];
+    if(stats.indexOf(k)>=0){
+      var old=st[k];st[k]=clamp(st[k]+v);
+      if(st.presence_withdrawn&&v>0&&k!=='repair'){
+        var actual=Math.max(1,Math.floor(v/2));st[k]=clamp(old+actual);
+        msgs.push('+'+actual+' '+k+(actual<v?' (halved)':''));
+      }else if(v>0)msgs.push('+'+v+' '+k);
+      else if(v<0)msgs.push(v+' '+k);
+      if(k==='nerve')st.lowest_nerve=Math.min(st.lowest_nerve,st.nerve);
+    }else if(k==='stray'){
+      for(var i=0;i<Math.max(0,v);i++){if(st.standing.length){
+        st.standing.sort(function(a,b){return (D.camp_members[a]||{loyalty:50}).loyalty-(D.camp_members[b]||{loyalty:50}).loyalty});
+        var w=st.standing.shift();st.strayed.push(w);msgs.push(w+' strays.');
+      }}
+      for(var i=0;i<Math.max(0,-v);i++){if(st.strayed.length){
+        st.strayed.sort(function(a,b){return (D.camp_members[b]||{loyalty:50}).loyalty-(D.camp_members[a]||{loyalty:50}).loyalty});
+        var w=st.strayed.shift();st.standing.push(w);msgs.push(w+' returns.');
+      }}
+    }else if(k==='restore'){
+      for(var i=0;i<v;i++){if(st.strayed.length){
+        st.strayed.sort(function(a,b){return (D.camp_members[b]||{loyalty:50}).loyalty-(D.camp_members[a]||{loyalty:50}).loyalty});
+        var w=st.strayed.shift();st.standing.push(w);msgs.push(w+' returns.');
+      }}
+    }
+  }
+  st.max_strayed=Math.max(st.max_strayed,st.strayed.length);
+  if(st.presence_withdrawn&&st.repair>=40){st.presence_withdrawn=false;msgs.push('The presence returns.');}
+  return msgs.join('  ');
+}
+
+// ═══ DAILY TICK ═══
+function dailyTick(st){
+  if(st.calf_happened){st.manna=Math.max(0,st.manna-rand(3,7));st.camp=Math.max(0,st.camp-rand(1,4));}
+  else{st.manna=Math.max(0,st.manna-rand(2,5));st.camp=Math.max(0,st.camp-rand(0,2));}
+  if(st.char_name!=='MIRYAM'){
+    if(st.calf_happened)st.water=Math.max(0,st.water-rand(3,7));
+    else st.water=Math.max(0,st.water-rand(2,5));
+  }
+  var pressure=Math.floor(st.strayed.length/3);
+  if(pressure&&st.nerve>10)st.nerve=Math.max(10,st.nerve-pressure);
+  if(st.manna<=10&&st.standing.length&&Math.random()<0.3){
+    st.standing.sort(function(a,b){return (D.camp_members[a]||{loyalty:50}).loyalty-(D.camp_members[b]||{loyalty:50}).loyalty});
+    var w=st.standing.shift();st.strayed.push(w);
+  }
+  if(st.water<=10&&st.standing.length&&Math.random()<0.2){
+    st.standing.sort(function(a,b){return (D.camp_members[a]||{loyalty:50}).loyalty-(D.camp_members[b]||{loyalty:50}).loyalty});
+    if(st.standing.length){var w=st.standing.shift();st.strayed.push(w);}
+  }
+}
+
+// ═══ SPECIAL ═══
+function useSpecial(st){
+  if(st.special_used)return 'Already used.';var msg='';
+  if(st.char_name==='MIRYAM'){
+    st.camp=clamp(st.camp+30);var restored=[];
+    for(var i=0;i<Math.min(2,st.strayed.length);i++){
+      var idx=Math.floor(Math.random()*st.strayed.length);
+      var w=st.strayed.splice(idx,1)[0];st.standing.push(w);restored.push(w);
+    }
+    msg='TAMBOURINE TIME. +30 camp.'+(restored.length?' '+restored.join(', ')+' returns.':' Nobody to restore.');
+  }else if(st.char_name==='AARON'){
+    st.total=Math.min(50,st.total+3);
+    msg='DELAY: added detail to the left ear. 3 more days. Total now '+st.total+'.';
+  }
+  st.special_used=true;return msg;
+}
+
+// ═══ ROCK/COLOR ═══
+function getRockLine(st){
+  if(st.char_name==='MIRYAM'&&st.nerve>40)return pick(D.rock_miriam);
+  if(st.nerve>50)return pick(D.rock_good);
+  if(st.nerve>25)return pick(D.rock_shaky);
+  return pick(D.rock_bad);
+}
+function colorMsg(msg){
+  if(!msg)return '<span class="d">(no effect)</span>';
+  return msg.split('  ').map(function(p){p=p.trim();if(!p)return '';
+    if(p.charAt(0)==='+')return '<span class="g">'+p+'</span>';
+    if(p.charAt(0)==='-')return '<span class="r">'+p+'</span>';
+    if(p.indexOf('strays')>=0)return '<span class="r">'+p+'</span>';
+    if(p.indexOf('returns')>=0)return '<span class="g">'+p+'</span>';
+    if(p.indexOf('presence')>=0)return '<span class="c">'+p+'</span>';
+    if(p.indexOf('halved')>=0)return '<span class="y">'+p+'</span>';
+    return p;}).join('&nbsp;&nbsp;');
+}
+
+// ═══ CAMP CHECK-IN ═══
+function doCampCheckin(){
+  var st=S.st;if(!st.standing.length){showResult('No one is in camp.',''  ,null,function(){doEventCard(S.currentEvent,S.isCrisis);});return;}
+  var h=statusHtml(st)+'<div class="card"><div class="t">CHECK IN WITH CAMP</div></div>';
+  var avail=st.standing.slice(0,9);
+  var btns=[];
+  avail.forEach(function(name,i){
+    btns.push({label:(i+1)+'. '+name,c:'choice',fn:'showCheckin("'+name+'")'});
+  });
+  btns.push({label:'Back',fn:'doEventCard(S.currentEvent,S.isCrisis)'});
+  showGame(h,btns,false);
+}
+function showCheckin(name){
+  var st=S.st;var mood=st.nerve>50?'good':st.nerve>25?'shaky':'bad';
+  var calf=st.calf_happened;
+  // Simple check-in lines
+  var lines={
+    'Datan':{'good,false':'Datan has no complaints today. This is itself cause for concern.',
+             'shaky,false':'Datan is drafting a formal letter. He will not say to whom.',
+             'bad,false':'Datan says he knew this would happen.',
+             'good,true':'Datan is quiet. Nobody knows what to do with a quiet Datan.',
+             'shaky,true':'Datan says the calf had better customer service.',
+             'bad,true':'Datan has filed a complaint about everything.'},
+    'Nachshon':{'good,false':'Nachshon is ready. For what, he will not say.',
+                'shaky,false':'Nachshon is pacing. He wants to walk toward something.',
+                'bad,false':'Nachshon is walking toward the mountain. Nobody asked him to.',
+                'good,true':'Nachshon is already walking toward whoever strayed.',
+                'shaky,true':'Nachshon says he will go get Moses himself.',
+                'bad,true':'Nachshon is standing between the camp and the calf. He has not moved in six hours.'},
+    'Betzalel':{'good,false':'Betzalel is organizing materials. He will not say what for.',
+                'shaky,false':'Betzalel is looking at the gold. He has plans for the gold.',
+                'bad,false':'Betzalel says: the gold is being wasted.',
+                'good,true':'Betzalel is already building. He started before anyone asked.',
+                'shaky,true':'Betzalel says: I need the gold back.',
+                'bad,true':'Betzalel is sitting with his tools out. Waiting.'}
+  };
+  var key=mood+','+calf;
+  var text;
+  if(lines[name]&&lines[name][key])text=lines[name][key];
+  else if(st.strayed.indexOf(name)>=0)text=name+' is at the calf. They are not available for comment.';
+  else{
+    var defaults={'good,false':name+' is doing fine. Gathering manna. Keeping steady.',
+                  'shaky,false':name+' is nervous but present. Still here.',
+                  'bad,false':name+' is looking toward Egypt. Not walking yet.',
+                  'good,true':name+' came back after the calf. Quiet but here.',
+                  'shaky,true':name+' is sitting alone. Not at the calf. Not quite in camp either.',
+                  'bad,true':name+" hasn't spoken in days."};
+    text=defaults[key]||name+' is here.';
+  }
+  var h=statusHtml(S.st)+'<div class="card"><div class="t">'+name+'</div><div class="txt">'+text+'</div></div>';
+  showGame(h,[{label:'Continue',fn:'doEventCard(S.currentEvent,S.isCrisis)'}],false);
+}
+
+// ═══ START GAME ═══
+function startGame(ck){
+  var st=newState(ck);
+  S.st=st;S.pool1=shuffle(D.events_act1.slice());S.pool2=shuffle(D.events_act2.slice());
+  S.ei1=0;S.ei2=0;S.history=[];S.firstCard=true;S.dayStarted=false;
+  S.phase='game';nextDay();
+}
+
+// ═══ GAME FLOW ═══
+function nextDay(){
+  var st=S.st;
+  if(st.day>=st.total){doEnding();return;}
+  if(!S.dayStarted){st.day++;dailyTick(st);
+    if(st.day===20&&!st.calf_happened){doCalf();return;}
+    S.dayStarted=true;
+  }
+  if(st.day>1)doMorning();
+  else doEvent();
+}
+
+function afterMorning(){
+  var st=S.st;
+  if(st.manna<=15&&Math.random()<0.5){st.manna_crises++;doEventCard(pick(D.manna_crisis),true);return;}
+  if(st.water<=15&&Math.random()<0.5){st.water_crises++;doEventCard(pick(D.water_crisis),true);return;}
+  doEvent();
+}
+
+function doEvent(){
+  var st=S.st;var ev;
+  if(st.calf_happened)ev=S.pool2[S.ei2%S.pool2.length];
+  else ev=S.pool1[S.ei1%S.pool1.length];
+  S.preEvent=dc(st);
+  doEventCard(ev,false);
+}
+
+// ═══ MORNING ═══
+function doMorning(){
+  var st=S.st;
+  var h=statusHtml(st)+'<div class="card"><div class="t">☀ MORNING — Day '+st.day+'</div><div class="txt">The sun is up. You have one morning. Pick one:</div></div>';
+  showGame(h,[
+    {label:'1. Hit the rock for water',c:'choice',fn:'doRock()'},
+    {label:'2. Gather manna',c:'choice',fn:'doGather()'},
+    {label:'3. Work on the build with Betzalel',c:'choice',fn:'doBuild()'},
+    {label:'Back',fn:'doBack()'},
+  ],true);
+}
+
+function doRock(){
+  var st=S.st;var rl=getRockLine(st);var wg,ml;
+  if(st.char_name==='MIRYAM'){wg=rand(12,20);ml=rand(2,4);}
+  else if(st.nerve>50){wg=rand(10,18);ml=rand(3,6);}
+  else if(st.nerve>25){wg=rand(5,12);ml=rand(3,6);}
+  else{wg=rand(2,6);ml=rand(4,7);}
+  st.water=clamp(st.water+wg);st.manna=Math.max(0,st.manna-ml);
+  showResult('Hit the rock.','+'+wg+' water  -'+ml+' manna',rl,function(){S.dayStarted=false;afterMorning();});
+}
+function doGather(){
+  var st=S.st;var mg=rand(8,15),wl=rand(3,6);
+  st.manna=clamp(st.manna+mg);st.water=Math.max(0,st.water-wl);
+  showResult('Gathered manna.','+'+mg+' manna  -'+wl+' water',null,function(){S.dayStarted=false;afterMorning();});
+}
+function doBuild(){
+  var st=S.st;
+  if(st.gold<=0){showResult('No gold left.','Betzalel nods. He understands.',null,function(){S.dayStarted=false;afterMorning();});return;}
+  var gc=rand(5,10),sg=rand(8,15),ml=rand(3,6),wl=rand(3,6);
+  st.gold=Math.max(0,st.gold-gc);st.signal=clamp(st.signal+sg);
+  st.manna=Math.max(0,st.manna-ml);st.water=Math.max(0,st.water-wl);
+  showResult('Worked on the build.','-'+gc+' gold  +'+sg+' signal  -'+ml+' manna  -'+wl+' water',null,function(){S.dayStarted=false;afterMorning();});
+}
+
+// ═══ BACK ═══
+function doBack(){
+  if(S.history.length){
+    var snap=S.history.pop();S.st=snap.st;S.ei1=snap.ei1;S.ei2=snap.ei2;
+    S.dayStarted=true;nextDay();
+  }else{doCharSelect();}
+}
+
+// ═══ EVENT CARD ═══
+function doEventCard(ev,isCrisis){
+  S.currentEvent=ev;S.isCrisis=isCrisis;S.phase='event';
+  var st=S.st;
+  var h=statusHtml(st)+'<div class="card">';
+  if(ev.ref)h+='<div class="t">'+ev.title+' <span class="ref">('+ev.ref+')</span></div>';
+  else h+='<div class="t">'+(ev.title||'')+'</div>';
+  h+='<div class="txt">'+ev.text.replace(/\n/g,'<br>')+'</div></div>';
+  var btns=[];
+  ev.choices.forEach(function(ch,i){
+    btns.push({label:(i+1)+'. '+ch[0],c:'choice',fn:'pickChoice('+i+')'});
+  });
+  if(!st.special_used)btns.push({label:'S. '+st.special+' — '+st.special_desc,c:'choice special',fn:'doSpecialMove()'});
+  btns.push({label:'Camp',fn:'doCampCheckin()'});
+  btns.push({label:'Back',fn:'doBack()'});
+  if(S.firstCard){h+='<div class="d" style="text-align:center;margin-top:8px">Nachshon would already be playing by now.</div>';S.firstCard=false;}
+  showGame(h,btns,false);
+}
+
+function pickChoice(i){
+  var ev=S.currentEvent,st=S.st;
+  var chosen=ev.choices[i][0],outcome=ev.choices[i][1];
+  if(outcome===null&&ev.question){doQuestion(ev.question);return;}
+  var msg=applyOutcome(st,outcome);
+  st.journey_log.push({day:st.day,event:ev.title||'',choice:chosen});
+  S.history.push({st:dc(st),ei1:S.ei1,ei2:S.ei2});
+  showResult(chosen,msg,null,function(){
+    if(!S.isCrisis){if(st.calf_happened)S.ei2++;else S.ei1++;}
+    S.dayStarted=false;nextDay();
+  });
+}
+
+function doQuestion(q){
+  var st=S.st;
+  var h=statusHtml(st)+'<div class="card"><div class="txt">'+q.text+'</div></div>';
+  var btns=[];
+  q.choices.forEach(function(ch,i){btns.push({label:(i+1)+'. '+ch[0],c:'choice',fn:'pickQChoice('+i+')'});});
+  S.currentQuestion=q;
+  showGame(h,btns,false);
+}
+function pickQChoice(i){
+  var q=S.currentQuestion,st=S.st,ev=S.currentEvent;
+  var chosen=q.choices[i][0],outcome=q.choices[i][1];
+  var msg=applyOutcome(st,outcome);
+  st.journey_log.push({day:st.day,event:ev.title||'',choice:chosen});
+  S.history.push({st:dc(st),ei1:S.ei1,ei2:S.ei2});
+  showResult(chosen,msg,null,function(){
+    if(!S.isCrisis){if(st.calf_happened)S.ei2++;else S.ei1++;}
+    S.dayStarted=false;nextDay();
+  });
+}
+
+function doSpecialMove(){
+  var st=S.st;var msg=useSpecial(st);
+  showResult(st.special,msg,null,function(){doEventCard(S.currentEvent,S.isCrisis);});
+}
+
+// ═══ RESULT ═══
+function showResult(title,msg,extra,cb){
+  S.resultCb=cb;S.phase='result';var st=S.st;
+  var h=statusHtml(st)+'<div class="result"><div class="c">► '+title+'</div><div style="margin:8px 0">'+colorMsg(msg)+'</div>';
+  if(extra)h+='<div class="d" style="margin-top:8px">'+extra+'</div>';
+  h+='</div>';
+  showGame(h,[{label:'Continue',fn:'S.resultCb()'}],false);
+}
+
+// ═══ CALF ═══
+function doCalf(){
+  var st=S.st;
+  var h='<div class="card" style="border-color:#e0505044"><div class="t" style="color:#e05050">THE CALF IS STANDING</div>';
+  h+='<div class="txt"><span class="y">"These are your gods, O Israel, who brought you out of the land of Egypt."</span><br><span class="d">-- Exodus 32:4</span><br><br>';
+  h+='The calf is not the end.<br>Moses is still on the mountain.<br>The second tablets have not been carved yet.<br><br>';
+  h+='<span class="c">ACT II: THE RETURN</span></div></div>';
+  st.calf_happened=true;st.presence_withdrawn=true;
+  showGame(h,[{label:'Continue',fn:'S.dayStarted=true;afterMorning()'}],false);
+}
+
+// ═══ ENDINGS ═══
+function getEnding(st){
+  var t=st.signal,co=st.camp,rm=st.repair,em=st.nerve,s=st.strayed.length,tot=D.camp_names.length;
+  if(t>=60&&co>=60&&rm>=50&&em>=50&&s<=3)return 'FULL_REPAIR';
+  if(t>=40&&co>=40&&rm>=25&&em>=35&&s<=tot/2)return 'PARTIAL_REPAIR';
+  if(t>=60&&co<25)return 'TABLETS_NOBODY_HOME';
+  if(co>=60&&t<25)return 'CAMP_HOLDS_NO_SIGNAL';
+  if(em>=70&&co<30&&t<30)return 'MOSHE_ALONE';
+  if(t<25&&co<25&&rm<15&&em<30)return 'CALF_STANDS';
+  return 'MOSHE_ALONE';
+}
+function journeySummary(st){
+  var p=[];
+  if(st.lowest_nerve<20)p.push('Your nerve nearly broke. You kept going.');
+  if(st.max_strayed>=8)p.push('At the worst point, '+st.max_strayed+' people were at the calf.');
+  if(st.manna_crises>0)p.push('The manna trust collapsed '+st.manna_crises+' time'+(st.manna_crises>1?'s':'')+'.');
+  if(st.water_crises>0)p.push('The water failed '+st.water_crises+' time'+(st.water_crises>1?'s':'')+'.');
+  if(st.strayed.length)p.push('Still at the calf: '+st.strayed.join(', ')+'.');
+  if(st.standing.length===D.camp_names.length)p.push('Everyone came back. Everyone.');
+  if(st.gold>40)p.push('You kept most of the gold. Betzalel is still waiting.');
+  else if(st.gold<15)p.push('The gold is spent. The Mishkan has what it needs.');
+  return p.length?p.join('<br>'):'The desert remembers what you chose.';
+}
+function doEnding(){
+  var st=S.st;var ek=getEnding(st);
+  var h='<div class="card"><div class="t">'+D.ending_titles[ek]+'</div>';
+  h+='<div class="txt">'+pick(D.ending_texts[ek]).replace(/\n/g,'<br>')+'</div></div>';
+  h+='<div class="card"><div class="c">YOUR JOURNEY:</div><div class="txt">'+journeySummary(st)+'</div></div>';
+  h+='<div class="card"><div class="d">Nerve '+st.nerve+'  Signal '+st.signal+'  Camp '+st.camp+'  Repair '+st.repair+'<br>';
+  h+='Gold '+st.gold+'  Manna '+st.manna+'  Water '+st.water+'<br>';
+  h+='Standing: '+st.standing.length+'  Strayed: '+st.strayed.length+'</div></div>';
+  showGame(h,[{label:'Play Again',fn:'S.idx=0;doIntro()'}],false);
+}
+
+// ═══ START ═══
+S.idx=0;doIntro();
+
+</script>
+</body>
+</html>
